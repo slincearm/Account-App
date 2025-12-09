@@ -13,7 +13,9 @@ import {
     onSnapshot,
     serverTimestamp,
     getDoc,
-    Unsubscribe
+    Unsubscribe,
+    collection,
+    getDocs
 } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
 import { AuthContextType, UserData } from "../types";
@@ -58,12 +60,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 // Check if user exists, if not create them
                 const snap = await getDoc(userRef);
                 if (!snap.exists()) {
+                    // Check if user is admin by comparing with admin collection
+                    let isAdmin = false;
+                    try {
+                        const adminsSnapshot = await getDocs(collection(db, "admin"));
+                        const adminEmails = adminsSnapshot.docs.map(doc => doc.data().email);
+                        isAdmin = user.email ? adminEmails.includes(user.email) : false;
+                    } catch (error) {
+                        console.error("Error checking admin status:", error);
+                    }
+
                     await setDoc(userRef, {
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName,
                         photoURL: user.photoURL,
-                        isApproved: false,
+                        isApproved: isAdmin, // Auto-approve admins
+                        isAdmin: isAdmin,
                         createdAt: serverTimestamp()
                     });
                 }
@@ -98,6 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         currentUser,
         userData,
         isApproved: userData?.isApproved ?? false,
+        isAdmin: userData?.isAdmin ?? false,
         login,
         logout,
         loading

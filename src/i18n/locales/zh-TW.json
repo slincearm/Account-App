@@ -130,6 +130,20 @@
     "loadingUsers": "載入使用者中...",
     "noOtherUsers": "沒有其他可新增的使用者。"
   },
+  "admin": {
+    "title": "管理者面板",
+    "panel": "管理者",
+    "description": "管理使用者帳號與權限",
+    "approvedUsers": "已認證使用者",
+    "unapprovedUsers": "未認證使用者",
+    "noApprovedUsers": "目前沒有已認證的使用者。",
+    "noUnapprovedUsers": "目前沒有待認證的使用者。",
+    "saveChanges": "儲存變更",
+    "saveSuccess": "使用者權限已成功更新！",
+    "modified": "已修改",
+    "adminBadge": "管理者",
+    "joined": "加入日期"
+  },
   "errors": {
     "fetchUsersFailed": "載入使用者失敗，請重試。",
     "addExpenseFailed": "新增費用失敗，請檢查網路連線後重試。",
@@ -141,6 +155,8 @@
     "unknownError": "發生未預期的錯誤，請重試。",
     "deleteGroupFailed": "刪除帳本失敗，請再試一次。",
     "deleteExpenseFailed": "刪除費用失敗，請再試一次。",
-    "updateExpenseFailed": "更新費用失敗，請再試一次。"
+    "updateExpenseFailed": "更新費用失敗，請再試一次。",
+    "loadUsersFailed": "載入使用者列表失敗，請重試。",
+    "updateUsersFailed": "更新使用者權限失敗，請重試。"
   }
 }

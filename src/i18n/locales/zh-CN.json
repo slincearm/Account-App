@@ -130,6 +130,20 @@
     "loadingUsers": "加载用户中...",
     "noOtherUsers": "没有其他可添加的用户。"
   },
+  "admin": {
+    "title": "管理员面板",
+    "panel": "管理员",
+    "description": "管理用户账号与权限",
+    "approvedUsers": "已认证用户",
+    "unapprovedUsers": "未认证用户",
+    "noApprovedUsers": "目前没有已认证的用户。",
+    "noUnapprovedUsers": "目前没有待认证的用户。",
+    "saveChanges": "保存更改",
+    "saveSuccess": "用户权限已成功更新！",
+    "modified": "已修改",
+    "adminBadge": "管理员",
+    "joined": "加入日期"
+  },
   "errors": {
     "fetchUsersFailed": "加载用户失败，请重试。",
     "addExpenseFailed": "添加费用失败，请检查网络连接后重试。",
@@ -141,6 +155,8 @@
     "unknownError": "发生未预期的错误，请重试。",
     "deleteGroupFailed": "删除群组失败，请再试一次。",
     "deleteExpenseFailed": "删除费用失败，请再试一次。",
-    "updateExpenseFailed": "更新费用失败，请再试一次。"
+    "updateExpenseFailed": "更新费用失败，请再试一次。",
+    "loadUsersFailed": "加载用户列表失败，请重试。",
+    "updateUsersFailed": "更新用户权限失败，请重试。"
   }
 }

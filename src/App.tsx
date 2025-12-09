@@ -12,6 +12,7 @@ import GroupDetail from "./pages/GroupDetail";
 import History from "./pages/History";
 import HistoryDetail from "./pages/HistoryDetail";
 import Settlement from "./pages/Settlement";
+import AdminPanel from "./pages/AdminPanel";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
                   <Route path="/settle/:groupId" element={<Settlement />} />
                   <Route path="/history" element={<History />} />
                   <Route path="/history/:groupId" element={<HistoryDetail />} />
+                  <Route path="/admin" element={<AdminPanel />} />
                 </Route>
               </Route>
 

@@ -1,0 +1,75 @@
+﻿feat: 實作管理者權限系統與使用者管理面板
+
+## 新增功能
+
+### 1. 管理者身份識別系統
+- 登入時自動檢查 Firebase 'admin' collection 中的 email
+- 管理者 email 匹配時自動設定 isAdmin 和 isApproved 欄位
+- 新增 UserData 和 AuthContextType 介面的 isAdmin 屬性
+
+### 2. 管理者面板 (AdminPanel.tsx)
+- 建立完整的使用者管理介面
+- 分為「未認證使用者」和「已認證使用者」兩個區塊
+- 即時顯示使用者認證狀態（綠色勾勾/紅色叉叉）
+- 管理者帳號顯示特殊徽章，且無法被修改
+
+### 3. 批次認證管理功能
+- 點擊使用者卡片切換 isApproved 狀態
+- 追蹤修改狀態，顯示「已修改」標籤
+- 提供「取消」按鈕放棄所有變更
+- 提供「儲存變更」按鈕批次上傳至 Firebase
+- 智慧按鈕狀態：無變更時自動隱藏/停用
+
+### 4. UI/UX 增強
+- 在 Layout 頂部導航列加入「管理者」按鈕
+- 僅管理者登入時顯示管理者入口
+- 使用 Shield 圖示標識管理者功能
+- 響應式設計，支援行動裝置
+
+### 5. 多語系支援
+- 更新繁體中文 (zh-TW) 翻譯
+- 更新簡體中文 (zh-CN) 翻譯
+- 更新英文 (en) 翻譯
+- 新增所有管理者面板相關文字
+
+## 技術細節
+
+### 修改的檔案
+- src/types/index.ts: 新增 isAdmin 欄位定義
+- src/contexts/AuthContext.tsx: 實作管理者識別邏輯
+- src/components/Layout.tsx: 加入管理者面板入口
+- src/pages/AdminPanel.tsx: 全新的管理者面板組件
+- src/App.tsx: 新增 /admin 路由
+- src/i18n/locales/*.json: 更新三種語言的翻譯
+
+### Firebase 整合
+- 讀取 admin collection 進行管理者驗證
+- 使用 getDocs 讀取所有使用者資料
+- 使用 updateDoc 批次更新使用者權限
+- 即時監聽 onSnapshot 同步認證狀態
+
+### 安全性考量
+- 管理者身份在後端驗證（admin collection）
+- 防止管理者誤修改自己的權限
+- 批次操作使用 Promise.all 確保原子性
+
+## Firebase 設定要求
+
+需在 Firestore 建立 admin collection：
+{
+  "adminId": {
+    "email": "admin@example.com"
+  }
+}
+
+## 文件更新
+- README.md: 新增管理者功能說明章節
+- README.md: 新增 Firebase admin collection 設定步驟
+- README.md: 更新專案結構說明
+
+## 測試建議
+1. 建立 admin collection 並設定管理者 email
+2. 使用管理者帳號登入，確認顯示管理者按鈕
+3. 進入管理者面板，測試批次認證功能
+4. 測試取消與儲存變更功能
+5. 確認非管理者無法存取管理者面板

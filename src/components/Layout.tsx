@@ -1,12 +1,12 @@
 import { useAuth } from "../contexts/AuthContext";
-import { LogOut, User } from "lucide-react";
-import { Outlet } from "react-router-dom";
+import { LogOut, User, Shield } from "lucide-react";
+import { Outlet, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function Layout() {
-    const { currentUser, logout } = useAuth();
+    const { currentUser, isAdmin, logout } = useAuth();
     const { t } = useTranslation();
 
     return (
@@ -25,6 +25,18 @@ export default function Layout() {
                     <div className="flex-center" style={{ gap: "1rem" }}>
                         <ThemeSwitcher />
                         <LanguageSwitcher />
+
+                        {isAdmin && (
+                            <Link 
+                                to="/admin" 
+                                className="btn btn-secondary"
+                                style={{ padding: "0.5rem 1rem" }}
+                                title={t('admin.panel')}
+                            >
+                                <Shield size={18} />
+                                <span className="hide-mobile">{t('admin.panel')}</span>
+                            </Link>
+                        )}
 
                         <div className="flex-center" style={{ gap: "0.5rem" }}>
                             {currentUser?.photoURL ? (

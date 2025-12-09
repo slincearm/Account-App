@@ -14,6 +14,7 @@ export interface UserData {
   displayName: string;
   photoURL: string;
   isApproved: boolean;
+  isAdmin?: boolean;
   createdAt: Timestamp;
 }
 
@@ -72,6 +73,7 @@ export interface AuthContextType {
   currentUser: User | null;
   userData: UserData | null;
   isApproved: boolean;
+  isAdmin: boolean;
   login: () => Promise<any>;
   logout: () => Promise<void>;
   loading: boolean;

@@ -133,6 +133,20 @@
     "loadingUsers": "Loading users...",
     "noOtherUsers": "No other users available to add."
   },
+  "admin": {
+    "title": "Admin Panel",
+    "panel": "Admin",
+    "description": "Manage user accounts and permissions",
+    "approvedUsers": "Approved Users",
+    "unapprovedUsers": "Unapproved Users",
+    "noApprovedUsers": "No approved users yet.",
+    "noUnapprovedUsers": "No users pending approval.",
+    "saveChanges": "Save Changes",
+    "saveSuccess": "User permissions updated successfully!",
+    "modified": "Modified",
+    "adminBadge": "Admin",
+    "joined": "Joined"
+  },
   "errors": {
     "fetchUsersFailed": "Failed to load users. Please try again.",
     "addExpenseFailed": "Failed to add expense. Please check your connection and try again.",
@@ -144,6 +158,8 @@
     "unknownError": "An unexpected error occurred. Please try again.",
     "deleteGroupFailed": "Failed to delete group. Please try again.",
     "deleteExpenseFailed": "Failed to delete expense. Please try again.",
-    "updateExpenseFailed": "Failed to update expense. Please try again."
+    "updateExpenseFailed": "Failed to update expense. Please try again.",
+    "loadUsersFailed": "Failed to load user list. Please try again.",
+    "updateUsersFailed": "Failed to update user permissions. Please try again."
   }
 }
