@@ -40,7 +40,12 @@ export interface Expense {
   timestamp: Timestamp;
 }
 
-export type ExpenseCategory = 'food' | 'transport' | 'entertainment' | 'shopping' | 'utilities' | 'other';
+export type ExpenseCategory =
+  | 'Breakfast' | 'Lunch' | 'Dinner'
+  | 'Travel' | 'DiningOut' | 'Groceries'
+  | 'Electricity' | 'Gas' | 'Internet'
+  | 'Miscellaneous'
+  | string; // Allow custom categories
 
 // Settlement types
 export interface SettlementPlan {
@@ -91,6 +96,7 @@ export interface UseGroupsReturn {
   settledGroups: Group[];
   loading: boolean;
   createGroup: (name: string) => Promise<void>;
+  deleteGroup: (groupId: string) => Promise<void>;
 }
 
 export interface UseGroupReturn {
@@ -102,7 +108,9 @@ export interface UseGroupReturn {
 export interface UseExpensesReturn {
   expenses: Expense[];
   loading: boolean;
-  addExpense: (expenseData: Omit<Expense, 'id'>) => Promise<void>;
+  addExpense: (expense: Omit<Expense, 'id'>) => Promise<void>;
+  deleteExpense: (expenseId: string) => Promise<void>;
+  updateExpense: (expenseId: string, expense: Partial<Omit<Expense, 'id'>>) => Promise<void>;
 }
 
 export interface UseSettlementReturn {

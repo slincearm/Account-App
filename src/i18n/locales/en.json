@@ -31,32 +31,67 @@
     "createFirst": "Create your first group",
     "members": "Members",
     "settle": "Settle",
-    "history": "History"
+    "history": "History",
+    "confirmDelete": "Are you sure you want to delete group '{{name}}'? All expenses will be permanently deleted."
   },
   "group": {
     "details": "Group Details",
     "addExpense": "Add Expense",
     "addMember": "Add Member",
+    "addItem": "Add Item",
     "expenses": "Expenses",
     "noExpenses": "No expenses yet.",
+    "noExpensesRecorded": "No expenses recorded.",
     "startTracking": "Start tracking your group expenses",
     "totalSpending": "Total Spending",
     "paidBy": "paid by",
-    "split": "split between"
+    "split": "split between",
+    "confirmDeleteExpense": "Are you sure you want to delete expense '{{description}}'?",
+    "spendingByCategory": "Spending by Category",
+    "members": "Members",
+    "invalidGroupId": "Invalid group ID",
+    "loadingDetails": "Loading details...",
+    "groupNotFound": "Group not found",
+    "unknown": "Unknown",
+    "uncategorized": "Uncategorized"
   },
   "expense": {
     "add": "Add New Expense",
+    "edit": "Edit Expense",
     "description": "Description",
     "descriptionPlaceholder": "What was this expense for?",
+    "descriptionOptional": "Optional",
+    "descriptionDefaultsTo": "Defaults to",
     "amount": "Amount",
+    "amountPlaceholder": "0.00",
     "category": "Category",
     "paidBy": "Paid By",
     "splitBetween": "Split Between",
+    "splitAmongst": "Split Amongst",
+    "whoPaid": "Who Paid?",
     "date": "Date",
+    "time": "Time",
     "selectCategory": "Select a category",
     "selectPayer": "Select who paid",
     "selectMembers": "Select members to split with",
+    "selectList": "Select List",
+    "custom": "Custom",
+    "enterCategoryName": "Enter category name",
+    "adding": "Adding...",
+    "updating": "Updating...",
+    "addExpense": "Add Expense",
+    "updateExpense": "Update Expense",
     "categories": {
+      "Breakfast": "Breakfast",
+      "Lunch": "Lunch",
+      "Dinner": "Dinner",
+      "Travel": "Travel",
+      "DiningOut": "Dining Out",
+      "Groceries": "Groceries",
+      "Electricity": "Electricity",
+      "Gas": "Gas",
+      "Internet": "Internet",
+      "Miscellaneous": "Miscellaneous",
       "food": "Food & Dining",
       "transport": "Transportation",
       "entertainment": "Entertainment",
@@ -82,7 +117,9 @@
     "noHistory": "No settled groups yet.",
     "keepTracking": "Keep tracking expenses to see your history here.",
     "settledOn": "Settled on",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "settled": "Settled",
+    "confirmDelete": "Are you sure you want to delete settled group '{{name}}'? All data will be permanently deleted."
   },
   "modal": {
     "createGroup": "Create New Group",
@@ -92,7 +129,9 @@
     "addMember": "Add Member",
     "selectUser": "Select a user to add",
     "add": "Add Member",
-    "alreadyMember": "Already a member"
+    "alreadyMember": "Already a member",
+    "loadingUsers": "Loading users...",
+    "noOtherUsers": "No other users available to add."
   },
   "errors": {
     "fetchUsersFailed": "Failed to load users. Please try again.",
@@ -102,6 +141,9 @@
     "settlementFailed": "Failed to settle group. Please try again.",
     "loadDataFailed": "Failed to load data. Please refresh the page.",
     "networkError": "Network error. Please check your connection.",
-    "unknownError": "An unexpected error occurred. Please try again."
+    "unknownError": "An unexpected error occurred. Please try again.",
+    "deleteGroupFailed": "Failed to delete group. Please try again.",
+    "deleteExpenseFailed": "Failed to delete expense. Please try again.",
+    "updateExpenseFailed": "Failed to update expense. Please try again."
   }
 }

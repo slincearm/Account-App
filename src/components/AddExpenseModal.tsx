@@ -4,37 +4,59 @@ import { useAuth } from "../contexts/AuthContext";
 import { Member, Expense } from "../types";
 import { useTranslation } from "react-i18next";
 
-const PREDEFINED_CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Travel"];
+const PREDEFINED_CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Travel", "DiningOut", "Groceries", "Electricity", "Gas", "Internet", "Miscellaneous"];
 
 interface AddExpenseModalProps {
     groupId: string;
     groupMembers: Member[];
     onClose: () => void;
     onAdd: (expense: Omit<Expense, 'id'>) => Promise<void>;
+    editingExpense?: Expense | null;
+    onUpdate?: (expenseId: string, expense: Partial<Omit<Expense, 'id'>>) => Promise<void>;
 }
 
-function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalProps, 'groupId'> & {groupId?: string}) {
+function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdate }: Omit<AddExpenseModalProps, 'groupId'> & {groupId?: string}) {
     const { currentUser } = useAuth();
     const { t } = useTranslation();
-    const [description, setDescription] = useState<string>("");
-    const [amount, setAmount] = useState<string>("");
-    const [category, setCategory] = useState<string>("Breakfast");
+    const isEditMode = !!editingExpense;
+    const [description, setDescription] = useState<string>(editingExpense?.description || "");
+    const [amount, setAmount] = useState<string>(editingExpense?.amount.toString() || "");
+    const [category, setCategory] = useState<string>(editingExpense?.category || "Breakfast");
     const [customCategory, setCustomCategory] = useState<string>("");
-    const [isCustomCategory, setIsCustomCategory] = useState<boolean>(false);
-    const [date, setDate] = useState<string>(new Date().toISOString().slice(0, 16));
-    const [payerUid, setPayerUid] = useState<string>(currentUser?.uid || '');
-    const [involvedUids, setInvolvedUids] = useState<string[]>([]);
+    const [isCustomCategory, setIsCustomCategory] = useState<boolean>(editingExpense ? !PREDEFINED_CATEGORIES.includes(editingExpense.category) : false);
+
+    // Helper function to format date to local datetime-local format
+    const formatLocalDateTime = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const [date, setDate] = useState<string>(
+        editingExpense?.timestamp?.toDate
+            ? formatLocalDateTime(new Date(editingExpense.timestamp.toDate()))
+            : formatLocalDateTime(new Date())
+    );
+    const [payerUid, setPayerUid] = useState<string>(editingExpense?.payerUid || currentUser?.uid || '');
+    const [involvedUids, setInvolvedUids] = useState<string[]>(editingExpense?.involvedUids || []);
     const [loading, setLoading] = useState<boolean>(false);
 
     // Need mapping from uid to Display Name for the UI
     // groupMembers comes from parent: [{ uid, displayName, photoURL }]
 
     useEffect(() => {
-        // Default all members involved
-        if (groupMembers.length > 0) {
+        // Default all members involved only in add mode
+        if (!isEditMode && groupMembers.length > 0) {
             setInvolvedUids(groupMembers.map(m => m.uid));
         }
-    }, [groupMembers]);
+        // In edit mode, set custom category if needed
+        if (isEditMode && editingExpense && !PREDEFINED_CATEGORIES.includes(editingExpense.category)) {
+            setCustomCategory(editingExpense.category);
+        }
+    }, [groupMembers, isEditMode, editingExpense]);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
@@ -42,20 +64,30 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
 
         try {
             const finalCategory = isCustomCategory ? customCategory : category;
-            const finalDescription = description.trim() === "" ? finalCategory : description;
+            // Use translated category name as default description if description is empty
+            const translatedCategoryName = isCustomCategory
+                ? customCategory
+                : t(`expense.categories.${category}`);
+            const finalDescription = description.trim() === "" ? translatedCategoryName : description;
 
-            await onAdd({
+            const expenseData = {
                 description: finalDescription,
                 amount: parseFloat(amount),
                 category: finalCategory as any,
                 payerUid,
                 involvedUids,
                 timestamp: new Date(date) as any
-            });
+            };
+
+            if (isEditMode && editingExpense && onUpdate) {
+                await onUpdate(editingExpense.id, expenseData);
+            } else {
+                await onAdd(expenseData);
+            }
             onClose();
         } catch (error) {
-            console.error("Failed to add expense:", error);
-            alert(t('errors.addExpenseFailed'));
+            console.error(isEditMode ? "Failed to update expense:" : "Failed to add expense:", error);
+            alert(t(isEditMode ? 'errors.updateExpenseFailed' : 'errors.addExpenseFailed'));
         } finally {
             setLoading(false);
         }
@@ -97,24 +129,33 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                     <X size={20} />
                 </button>
 
-                <h3 style={{ marginBottom: "1.5rem" }}>Add New Expense</h3>
+                <h3 style={{ marginBottom: "1.5rem", color: "var(--text-primary)" }}>{isEditMode ? t('expense.edit') : t('expense.add')}</h3>
 
                 <form onSubmit={handleSubmit}>
-                    {/* Time */}
+                    {/* Date and Time */}
                     <div style={{ marginBottom: "1rem" }}>
-                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>Time</label>
-                        <input
-                            type="datetime-local"
-                            className="input"
-                            value={date}
-                            onChange={e => setDate(e.target.value)}
-                            required
-                        />
+                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.time')}</label>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+                            <input
+                                type="date"
+                                className="input"
+                                value={date.slice(0, 10)}
+                                onChange={e => setDate(e.target.value + 'T' + (date.slice(11, 16) || '12:00'))}
+                                required
+                            />
+                            <input
+                                type="time"
+                                className="input"
+                                value={date.slice(11, 16)}
+                                onChange={e => setDate(date.slice(0, 10) + 'T' + e.target.value)}
+                                required
+                            />
+                        </div>
                     </div>
 
                     {/* Category */}
                     <div style={{ marginBottom: "1rem" }}>
-                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>Category</label>
+                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.category')}</label>
                         <div className="flex-center" style={{ gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-start" }}>
                             {!isCustomCategory && PREDEFINED_CATEGORIES.map(cat => (
                                 <button
@@ -124,7 +165,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                                     style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
                                     onClick={() => setCategory(cat)}
                                 >
-                                    {cat}
+                                    {t(`expense.categories.${cat}`)}
                                 </button>
                             ))}
                             <button
@@ -133,7 +174,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                                 style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
                                 onClick={() => setIsCustomCategory(!isCustomCategory)}
                             >
-                                {isCustomCategory ? "Select List" : "Custom"}
+                                {isCustomCategory ? t('expense.selectList') : t('expense.custom')}
                             </button>
                         </div>
                         {isCustomCategory && (
@@ -141,7 +182,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                                 type="text"
                                 className="input"
                                 style={{ marginTop: "0.5rem" }}
-                                placeholder="Enter category name"
+                                placeholder={t('expense.enterCategoryName')}
                                 value={customCategory}
                                 onChange={e => setCustomCategory(e.target.value)}
                                 required={isCustomCategory}
@@ -151,21 +192,21 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
 
                     {/* Name/Description */}
                     <div style={{ marginBottom: "1rem" }}>
-                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-                            Description <span style={{ color: "var(--text-muted)" }}>(Optional)</span>
+                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
+                            {t('expense.description')} <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>({t('expense.descriptionOptional')})</span>
                         </label>
                         <input
                             type="text"
                             className="input"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
-                            placeholder={`Defaults to "${isCustomCategory ? (customCategory || 'Category') : category}"`}
+                            placeholder={`${t('expense.descriptionDefaultsTo')} "${isCustomCategory ? (customCategory || t('expense.category')) : t(`expense.categories.${category}`)}"`}
                         />
                     </div>
 
                     {/* Amount */}
                     <div style={{ marginBottom: "1rem" }}>
-                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>Amount</label>
+                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.amount')}</label>
                         <input
                             type="number"
                             className="input"
@@ -174,14 +215,14 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                             step="0.01"
                             min="0"
                             required
-                            placeholder="0.00"
+                            placeholder={t('expense.amountPlaceholder')}
                         />
                     </div>
 
                     {/* Users Selection */}
-                    <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-md)" }}>
+                    <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "var(--glass-bg)", borderRadius: "var(--radius-md)", border: "1px solid var(--glass-border)" }}>
                         <div style={{ marginBottom: "1rem" }}>
-                            <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>Who Paid?</label>
+                            <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.whoPaid')}</label>
                             <select
                                 className="input"
                                 value={payerUid}
@@ -194,7 +235,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                         </div>
 
                         <div>
-                            <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>Split Amongst</label>
+                            <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.splitAmongst')}</label>
                             <div style={{ display: "grid", gap: "0.5rem" }}>
                                 {groupMembers.map(m => (
                                     <div
@@ -215,9 +256,9 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
                                             display: "flex", alignItems: "center", justifyContent: "center",
                                             background: involvedUids.includes(m.uid) ? "hsl(var(--color-primary))" : "transparent"
                                         }}>
-                                            {involvedUids.includes(m.uid) && <Check size={12} />}
+                                            {involvedUids.includes(m.uid) && <Check size={12} color="white" />}
                                         </div>
-                                        <span>{m.displayName}</span>
+                                        <span style={{ color: "var(--text-primary)" }}>{m.displayName}</span>
                                     </div>
                                 ))}
                             </div>
@@ -226,10 +267,10 @@ function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalP
 
                     <div className="flex-center" style={{ gap: "1rem" }}>
                         <button type="button" className="btn btn-secondary" onClick={onClose} style={{ flex: 1 }} disabled={loading}>
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
-                            {loading ? 'Adding...' : 'Add Expense'}
+                            {loading ? (isEditMode ? t('expense.updating') : t('expense.adding')) : (isEditMode ? t('expense.updateExpense') : t('expense.addExpense'))}
                         </button>
                     </div>
                 </form>

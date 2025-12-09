@@ -5,7 +5,10 @@ import {
     orderBy,
     onSnapshot,
     addDoc,
-    serverTimestamp
+    serverTimestamp,
+    deleteDoc,
+    doc,
+    updateDoc
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { Expense, UseExpensesReturn } from "../types";
@@ -50,5 +53,27 @@ export function useExpenses(groupId: string): UseExpensesReturn {
         }
     };
 
-    return { expenses, loading, addExpense };
+    const deleteExpense = async (expenseId: string): Promise<void> => {
+        try {
+            await deleteDoc(doc(db, "groups", groupId, "expenses", expenseId));
+        } catch (err) {
+            console.error("Error deleting expense:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to delete expense: ${errorMessage}`);
+        }
+    };
+
+    const updateExpense = async (expenseId: string, expenseData: Partial<Omit<Expense, 'id'>>): Promise<void> => {
+        try {
+            await updateDoc(doc(db, "groups", groupId, "expenses", expenseId), {
+                ...expenseData
+            });
+        } catch (err) {
+            console.error("Error updating expense:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to update expense: ${errorMessage}`);
+        }
+    };
+
+    return { expenses, loading, addExpense, deleteExpense, updateExpense };
 }

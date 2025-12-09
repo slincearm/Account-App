@@ -64,14 +64,14 @@ function AddMemberModal({ currentMemberIds, onClose, onAdd }: AddMemberModalProp
                     <X size={20} />
                 </button>
 
-                <h3 style={{ marginBottom: "1rem" }}>Add Member</h3>
+                <h3 style={{ marginBottom: "1rem" }}>{t('modal.addMember')}</h3>
 
                 {loading ? (
-                    <div className="text-center">Loading users...</div>
+                    <div className="text-center">{t('modal.loadingUsers')}</div>
                 ) : (
                     <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                         {users.length === 0 ? (
-                            <p style={{ color: "var(--text-muted)", textAlign: "center" }}>No other users available to add.</p>
+                            <p style={{ color: "var(--text-muted)", textAlign: "center" }}>{t('modal.noOtherUsers')}</p>
                         ) : (
                             <div style={{ display: "grid", gap: "0.5rem" }}>
                                 {users.map(u => (

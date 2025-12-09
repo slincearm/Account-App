@@ -6,7 +6,9 @@ import {
     addDoc,
     serverTimestamp,
     onSnapshot,
-    orderBy
+    orderBy,
+    deleteDoc,
+    doc
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -75,5 +77,15 @@ export function useGroups(): UseGroupsReturn {
         }
     };
 
-    return { activeGroups, settledGroups, loading, createGroup };
+    const deleteGroup = async (groupId: string): Promise<void> => {
+        try {
+            await deleteDoc(doc(db, "groups", groupId));
+        } catch (err) {
+            console.error("Error deleting group:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to delete group: ${errorMessage}`);
+        }
+    };
+
+    return { activeGroups, settledGroups, loading, createGroup, deleteGroup };
 }

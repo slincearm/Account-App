@@ -31,37 +31,69 @@
     "createFirst": "创建您的第一个群组",
     "members": "成员",
     "settle": "结算",
-    "history": "历史记录"
+    "history": "历史记录",
+    "confirmDelete": "确定要删除群组 '{{name}}' 吗？所有费用记录将被永久删除。"
   },
   "group": {
     "details": "群组详情",
     "addExpense": "添加费用",
     "addMember": "添加成员",
+    "addItem": "添加项目",
     "expenses": "费用记录",
     "noExpenses": "暂无费用记录。",
+    "noExpensesRecorded": "暂无费用记录。",
     "startTracking": "开始追踪您的群组费用",
     "totalSpending": "总支出",
     "paidBy": "由",
-    "split": "分摊于"
+    "split": "分摊于",
+    "confirmDeleteExpense": "确定要删除费用 '{{description}}' 吗？",
+    "spendingByCategory": "各类别支出",
+    "members": "成员",
+    "invalidGroupId": "无效的群组 ID",
+    "loadingDetails": "加载详情中...",
+    "groupNotFound": "找不到群组",
+    "unknown": "未知",
+    "uncategorized": "未分类"
   },
   "expense": {
     "add": "添加费用",
     "description": "描述",
     "descriptionPlaceholder": "这笔费用是什么？",
+    "descriptionOptional": "选填",
+    "descriptionDefaultsTo": "默认为",
     "amount": "金额",
+    "amountPlaceholder": "0.00",
     "category": "类别",
     "paidBy": "付款人",
     "splitBetween": "分摊对象",
+    "splitAmongst": "分摊对象",
+    "whoPaid": "谁付款？",
     "date": "日期",
+    "time": "时间",
     "selectCategory": "选择类别",
     "selectPayer": "选择付款人",
     "selectMembers": "选择分摊成员",
+    "selectList": "选择列表",
+    "custom": "自定义",
+    "enterCategoryName": "输入类别名称",
+    "adding": "添加中...",
+    "addExpense": "添加费用",
     "categories": {
+      "Breakfast": "早餐",
+      "Lunch": "午餐",
+      "Dinner": "晚餐",
+      "Travel": "交通",
+      "DiningOut": "外食",
+      "Groceries": "食材",
+      "Electricity": "水电",
+      "Gas": "瓦斯",
+      "Internet": "网络",
+      "Miscellaneous": "杂项",
       "food": "餐饮美食",
       "transport": "交通运输",
       "entertainment": "娱乐休闲",
       "shopping": "购物消费",
-      "utilities": "水电燃气",
+      "utilities": "水电瓦斯",
       "other": "其他"
     }
   },
@@ -80,9 +112,11 @@
     "title": "历史记录",
     "settledGroups": "已结算群组",
     "noHistory": "暂无已结算的群组。",
-    "keepTracking": "继续追踪费用，历史记录将显示在这里。",
+    "keepTracking": "继续追踪费用以查看历史记录。",
     "settledOn": "结算于",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "settled": "已结算",
+    "confirmDelete": "确定要删除已结算群组“{{name}}”吗？所有数据将被永久删除。"
   },
   "modal": {
     "createGroup": "创建新群组",
@@ -92,7 +126,9 @@
     "addMember": "添加成员",
     "selectUser": "选择要添加的用户",
     "add": "添加成员",
-    "alreadyMember": "已经是成员"
+    "alreadyMember": "已经是成员",
+    "loadingUsers": "加载用户中...",
+    "noOtherUsers": "没有其他可添加的用户。"
   },
   "errors": {
     "fetchUsersFailed": "加载用户失败，请重试。",
@@ -102,6 +138,9 @@
     "settlementFailed": "结算群组失败，请重试。",
     "loadDataFailed": "加载数据失败，请刷新页面。",
     "networkError": "网络错误，请检查您的连接。",
-    "unknownError": "发生未预期的错误，请重试。"
+    "unknownError": "发生未预期的错误，请重试。",
+    "deleteGroupFailed": "删除群组失败，请再试一次。",
+    "deleteExpenseFailed": "删除费用失败，请再试一次。",
+    "updateExpenseFailed": "更新费用失败，请再试一次。"
   }
 }

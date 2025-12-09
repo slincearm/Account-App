@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Users, History, CheckCircle } from "lucide-react";
+import { Plus, Users, History, CheckCircle, Trash2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useGroups } from "../hooks/useGroups";
 import CreateGroupModal from "../components/CreateGroupModal";
@@ -8,13 +8,24 @@ import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
     const { currentUser } = useAuth();
-    const { activeGroups, loading, createGroup } = useGroups();
+    const { activeGroups, loading, createGroup, deleteGroup } = useGroups();
     const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
     const navigate = useNavigate();
     const { t } = useTranslation();
 
     const handleSettleClick = (groupId: string): void => {
         navigate(`/settle/${groupId}`);
+    };
+
+    const handleDeleteGroup = async (groupId: string, groupName: string): Promise<void> => {
+        if (!window.confirm(t('dashboard.confirmDelete', { name: groupName }))) return;
+
+        try {
+            await deleteGroup(groupId);
+        } catch (error) {
+            console.error("Failed to delete group:", error);
+            alert(t('errors.deleteGroupFailed'));
+        }
     };
 
     if (loading) return <div className="container text-center mt-10">{t('common.loading')}</div>;
@@ -71,15 +82,27 @@ export default function Dashboard() {
                                     </div>
                                 </Link>
 
-                                <button
-                                    className="btn btn-secondary"
-                                    style={{ marginLeft: "1rem" }}
-                                    onClick={() => handleSettleClick(group.id)}
-                                    title={t('dashboard.settle')}
-                                >
-                                    <CheckCircle size={18} style={{ color: "hsl(var(--color-success))" }} />
-                                    <span className="hide-mobile">{t('dashboard.settle')}</span>
-                                </button>
+                                <div className="flex-center" style={{ gap: "0.5rem", marginLeft: "1rem" }}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => handleSettleClick(group.id)}
+                                        title={t('dashboard.settle')}
+                                    >
+                                        <CheckCircle size={18} style={{ color: "hsl(var(--color-success))" }} />
+                                        <span className="hide-mobile">{t('dashboard.settle')}</span>
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleDeleteGroup(group.id, group.name);
+                                        }}
+                                        title={t('common.delete')}
+                                        style={{ color: "hsl(var(--color-danger))" }}
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

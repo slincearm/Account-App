@@ -3,6 +3,7 @@ import { LogOut, User } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function Layout() {
     const { currentUser, logout } = useAuth();
@@ -22,6 +23,7 @@ export default function Layout() {
                     <h2 className="text-gradient" style={{ fontSize: "1.25rem" }}>{t('auth.loginTitle')}</h2>
 
                     <div className="flex-center" style={{ gap: "1rem" }}>
+                        <ThemeSwitcher />
                         <LanguageSwitcher />
 
                         <div className="flex-center" style={{ gap: "0.5rem" }}>

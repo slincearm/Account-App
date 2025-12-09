@@ -1,39 +1,58 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { Plus, UserPlus, ArrowLeft, Calendar } from "lucide-react";
+import { Plus, UserPlus, ArrowLeft, Calendar, Trash2 } from "lucide-react";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
+import { Expense } from "../types";
 import AddExpenseModal from "../components/AddExpenseModal";
 import AddMemberModal from "../components/AddMemberModal";
+import { useTranslation } from "react-i18next";
 
 const COLORS = ['#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#6366f1'];
 
 export default function GroupDetail() {
     const { groupId } = useParams();
-    if (!groupId) return <div className="container text-center mt-10">Invalid group ID</div>;
+    const { t } = useTranslation();
+
+    if (!groupId) return <div className="container text-center mt-10">{t('group.invalidGroupId')}</div>;
 
     const { group, members, addMember, loading: groupLoading } = useGroup(groupId);
-    const { expenses, addExpense, loading: expensesLoading } = useExpenses(groupId);
+    const { expenses, addExpense, deleteExpense, updateExpense, loading: expensesLoading } = useExpenses(groupId);
 
     const [showAddExpense, setShowAddExpense] = useState(false);
     const [showAddMember, setShowAddMember] = useState(false);
+    const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
+    const handleDeleteExpense = async (expenseId: string, description: string): Promise<void> => {
+        if (!window.confirm(t('group.confirmDeleteExpense', { description }))) return;
+
+        try {
+            await deleteExpense(expenseId);
+        } catch (error) {
+            console.error("Failed to delete expense:", error);
+            alert(t('errors.deleteExpenseFailed'));
+        }
+    };
 
     // Group expenses by category for Pie Chart
     const chartData = useMemo(() => {
         const data: Record<string, number> = {};
         expenses.forEach(e => {
-            const cat = e.category || 'Uncategorized';
+            const cat = e.category || 'uncategorized';
             data[cat] = (data[cat] || 0) + Number(e.amount);
         });
-        return Object.keys(data).map(key => ({ name: key, value: data[key] }));
-    }, [expenses]);
+        return Object.keys(data).map(key => ({
+            name: key === 'uncategorized' ? t('group.uncategorized') : t(`expense.categories.${key}`, { defaultValue: key }),
+            value: data[key]
+        }));
+    }, [expenses, t]);
 
-    if (groupLoading || expensesLoading) return <div className="container text-center mt-10">Loading details...</div>;
-    if (!group) return <div className="container text-center mt-10">Group not found</div>;
+    if (groupLoading || expensesLoading) return <div className="container text-center mt-10">{t('group.loadingDetails')}</div>;
+    if (!group) return <div className="container text-center mt-10">{t('group.groupNotFound')}</div>;
 
     // Helper to find member name
-    const getMemberName = (uid: string): string => members.find(m => m.uid === uid)?.displayName || "Unknown";
+    const getMemberName = (uid: string): string => members.find(m => m.uid === uid)?.displayName || t('group.unknown');
 
     return (
         <>
@@ -43,12 +62,12 @@ export default function GroupDetail() {
                     <div>
                         <h1 className="text-gradient" style={{ fontSize: "1.75rem" }}>{group.name}</h1>
                         <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                            {members.length} Members
+                            {members.length} {t('group.members')}
                         </p>
                     </div>
                 </div>
                 <div className="flex-center" style={{ gap: "0.5rem" }}>
-                    <button className="btn btn-secondary" onClick={() => setShowAddMember(true)} title="Add Member">
+                    <button className="btn btn-secondary" onClick={() => setShowAddMember(true)} title={t('group.addMember')}>
                         <UserPlus size={18} />
                     </button>
                 </div>
@@ -57,7 +76,7 @@ export default function GroupDetail() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
                 {/* Chart Section */}
                 <div className="card" style={{ minHeight: "300px", display: "flex", flexDirection: "column" }}>
-                    <h3 style={{ marginBottom: "1rem" }}>Spending by Category</h3>
+                    <h3 style={{ marginBottom: "1rem" }}>{t('group.spendingByCategory')}</h3>
                     {chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={250}>
                             <PieChart>
@@ -82,13 +101,13 @@ export default function GroupDetail() {
                             </PieChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex-center" style={{ flex: 1, color: "var(--text-muted)" }}>No expenses yet</div>
+                        <div className="flex-center" style={{ flex: 1, color: "var(--text-muted)" }}>{t('group.noExpenses')}</div>
                     )}
                 </div>
 
                 {/* Members List (Mini) */}
                 <div className="card">
-                    <h3 style={{ marginBottom: "1rem" }}>Members</h3>
+                    <h3 style={{ marginBottom: "1rem" }}>{t('group.members')}</h3>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                         {members.map(m => (
                             <div key={m.uid} className="flex-center" style={{
@@ -109,9 +128,9 @@ export default function GroupDetail() {
             </div>
 
             <div className="flex-between" style={{ marginBottom: "1rem" }}>
-                <h2 style={{ fontSize: "1.5rem" }}>Expenses</h2>
+                <h2 style={{ fontSize: "1.5rem" }}>{t('group.expenses')}</h2>
                 <button className="btn btn-primary" onClick={() => setShowAddExpense(true)}>
-                    <Plus size={18} /> Add Item
+                    <Plus size={18} /> {t('group.addItem')}
                 </button>
             </div>
 
@@ -122,7 +141,7 @@ export default function GroupDetail() {
                     const perPerson = expense.amount / splitCount;
 
                     return (
-                        <div key={expense.id} className="card flex-between">
+                        <div key={expense.id} className="card flex-between" style={{ cursor: "pointer" }} onClick={() => setEditingExpense(expense)}>
                             <div className="flex-center" style={{ gap: "1rem", justifyContent: "flex-start" }}>
                                 <div style={{
                                     width: 48, height: 48,
@@ -138,27 +157,45 @@ export default function GroupDetail() {
                                             expense.timestamp.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
                                             : ''}
                                     </span>
+                                    <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
+                                        {expense.timestamp?.toDate ?
+                                            expense.timestamp.toDate().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+                                            : ''}
+                                    </span>
                                 </div>
                                 <div>
                                     <h4 style={{ fontSize: "1.1rem" }}>{expense.description}</h4>
                                     <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                                        <span style={{ color: "hsl(var(--color-primary))" }}>{expense.category}</span> • Paid by <strong>{payerName}</strong>
+                                        <span style={{ color: "hsl(var(--color-primary))" }}>{t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}</span> • {t('group.paidBy')} <strong>{payerName}</strong>
                                     </p>
                                 </div>
                             </div>
-                            <div style={{ textAlign: "right" }}>
-                                <div style={{ fontSize: "1.1rem", fontWeight: "bold", color: "hsl(var(--color-success))" }}>
-                                    ${expense.amount.toFixed(2)}
+                            <div className="flex-center" style={{ gap: "1rem" }}>
+                                <div style={{ textAlign: "right" }}>
+                                    <div style={{ fontSize: "1.1rem", fontWeight: "bold", color: "hsl(var(--color-success))" }}>
+                                        ${expense.amount.toFixed(2)}
+                                    </div>
+                                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                                        (${perPerson.toFixed(2)} / {splitCount})
+                                    </div>
                                 </div>
-                                <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                                    (${perPerson.toFixed(2)} / {splitCount})
-                                </div>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteExpense(expense.id, expense.description);
+                                    }}
+                                    title={t('common.delete')}
+                                    style={{ padding: "0.5rem", color: "hsl(var(--color-danger))" }}
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                             </div>
                         </div>
                     );
                 })}
                 {expenses.length === 0 && (
-                    <p style={{ textAlign: "center", color: "var(--text-muted)", marginTop: "2rem" }}>No expenses recorded.</p>
+                    <p style={{ textAlign: "center", color: "var(--text-muted)", marginTop: "2rem" }}>{t('group.noExpensesRecorded')}</p>
                 )}
             </div>
 
@@ -168,6 +205,17 @@ export default function GroupDetail() {
                     groupMembers={members}
                     onClose={() => setShowAddExpense(false)}
                     onAdd={addExpense}
+                />
+            )}
+
+            {editingExpense && (
+                <AddExpenseModal
+                    groupId={groupId}
+                    groupMembers={members}
+                    onClose={() => setEditingExpense(null)}
+                    onAdd={addExpense}
+                    editingExpense={editingExpense}
+                    onUpdate={updateExpense}
                 />
             )}
 
@@ -181,7 +229,7 @@ export default function GroupDetail() {
                             setShowAddMember(false);
                         } catch (error) {
                             console.error("Failed to add member:", error);
-                            alert('Failed to add member. Please try again.');
+                            alert(t('errors.addMemberFailed'));
                         }
                     }}
                 />
