@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
@@ -10,16 +10,18 @@ const COLORS = ['#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#6366f1'
 
 export default function HistoryDetail() {
     const { groupId } = useParams();
+    if (!groupId) return <div className="container text-center mt-10">Invalid group ID</div>;
+
     const { group, members, loading: groupLoading } = useGroup(groupId);
     const { expenses, loading: expensesLoading } = useExpenses(groupId);
     const { totalSpend, plan: settlementPlan } = useSettlement(expenses, members); // Reusing logic
 
     // Pie Chart Data Logic (Replicated from GroupDetail, ideally could be a hook but it's small)
     const chartData = useMemo(() => {
-        const data = {};
+        const data: Record<string, number> = {};
         expenses.forEach(e => {
             const cat = e.category || 'Uncategorized';
-            data[cat] = (data[cat] || 0) + parseFloat(e.amount);
+            data[cat] = (data[cat] || 0) + Number(e.amount);
         });
         return Object.keys(data).map(key => ({ name: key, value: data[key] }));
     }, [expenses]);
@@ -82,13 +84,13 @@ export default function HistoryDetail() {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {chartData.map((entry, index) => (
+                                    {chartData.map((_entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <Tooltip
                                     contentStyle={{ background: "rgba(15, 23, 42, 0.9)", border: "none", borderRadius: "8px", color: "white" }}
-                                    formatter={(value) => `$${value.toFixed(2)}`}
+                                    formatter={(value) => `$${Number(value).toFixed(2)}`}
                                 />
                                 <Legend />
                             </PieChart>

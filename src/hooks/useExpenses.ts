@@ -8,11 +8,11 @@ import {
     serverTimestamp
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { useAuth } from "../contexts/AuthContext";
+import { Expense, UseExpensesReturn } from "../types";
 
-export function useExpenses(groupId) {
-    const [expenses, setExpenses] = useState([]);
-    const [loading, setLoading] = useState(true);
+export function useExpenses(groupId: string): UseExpensesReturn {
+    const [expenses, setExpenses] = useState<Expense[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         if (!groupId) return;
@@ -26,7 +26,7 @@ export function useExpenses(groupId) {
             const docs = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            } as Expense));
             setExpenses(docs);
             setLoading(false);
         }, (err) => {
@@ -37,8 +37,7 @@ export function useExpenses(groupId) {
         return unsubscribe;
     }, [groupId]);
 
-    const addExpense = async (expenseData) => {
-        // expenseData: { description, amount, payerUid, involvedUids, category, timestamp }
+    const addExpense = async (expenseData: Omit<Expense, 'id'>): Promise<void> => {
         try {
             await addDoc(collection(db, "groups", groupId, "expenses"), {
                 ...expenseData,
@@ -46,7 +45,8 @@ export function useExpenses(groupId) {
             });
         } catch (err) {
             console.error("Error adding expense:", err);
-            throw err;
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to add expense: ${errorMessage}`);
         }
     };
 

@@ -1,0 +1,107 @@
+{
+  "common": {
+    "loading": "載入中...",
+    "cancel": "取消",
+    "confirm": "確認",
+    "save": "儲存",
+    "delete": "刪除",
+    "edit": "編輯",
+    "back": "返回",
+    "signOut": "登出",
+    "welcome": "歡迎回來"
+  },
+  "network": {
+    "offline": "離線模式 - 使用快取資料",
+    "online": "已連線 - 正在同步資料",
+    "offlineNotice": "您目前處於離線狀態。更改將在您連線後同步。"
+  },
+  "auth": {
+    "login": "使用 Google 登入",
+    "loginTitle": "費用追蹤器",
+    "loginDescription": "與您的群組追蹤和分攤費用",
+    "pending": "帳號待核准",
+    "pendingMessage": "您的帳號正在等待管理員核准，請稍後再回來查看。",
+    "pendingDescription": "核准後，您將能夠建立群組並追蹤費用。"
+  },
+  "dashboard": {
+    "title": "主控台",
+    "newGroup": "新增群組",
+    "activeGroups": "活躍群組",
+    "noGroups": "目前沒有活躍的群組。",
+    "createFirst": "建立您的第一個群組",
+    "members": "成員",
+    "settle": "結算",
+    "history": "歷史記錄"
+  },
+  "group": {
+    "details": "群組詳情",
+    "addExpense": "新增費用",
+    "addMember": "新增成員",
+    "expenses": "費用記錄",
+    "noExpenses": "尚無費用記錄。",
+    "startTracking": "開始追蹤您的群組費用",
+    "totalSpending": "總支出",
+    "paidBy": "由",
+    "split": "分攤於"
+  },
+  "expense": {
+    "add": "新增費用",
+    "description": "描述",
+    "descriptionPlaceholder": "這筆費用是什麼？",
+    "amount": "金額",
+    "category": "類別",
+    "paidBy": "付款人",
+    "splitBetween": "分攤對象",
+    "date": "日期",
+    "selectCategory": "選擇類別",
+    "selectPayer": "選擇付款人",
+    "selectMembers": "選擇分攤成員",
+    "categories": {
+      "food": "餐飲美食",
+      "transport": "交通運輸",
+      "entertainment": "娛樂休閒",
+      "shopping": "購物消費",
+      "utilities": "水電瓦斯",
+      "other": "其他"
+    }
+  },
+  "settlement": {
+    "title": "結算",
+    "totalSpend": "群組總支出",
+    "paymentPlan": "付款計畫",
+    "allSettled": "全部結清！",
+    "noPayments": "大家都結清了，不需要付款。",
+    "confirmSettle": "確認結算",
+    "confirmMessage": "確定要結算此群組嗎？這將會標記為已結算。",
+    "pays": "支付給",
+    "failed": "結算失敗，請重試。"
+  },
+  "history": {
+    "title": "歷史記錄",
+    "settledGroups": "已結算群組",
+    "noHistory": "尚無已結算的群組。",
+    "keepTracking": "繼續追蹤費用，歷史記錄將顯示在這裡。",
+    "settledOn": "結算於",
+    "viewDetails": "查看詳情"
+  },
+  "modal": {
+    "createGroup": "建立新群組",
+    "groupName": "群組名稱",
+    "groupNamePlaceholder": "輸入群組名稱",
+    "create": "建立群組",
+    "addMember": "新增成員",
+    "selectUser": "選擇要新增的使用者",
+    "add": "新增成員",
+    "alreadyMember": "已經是成員"
+  },
+  "errors": {
+    "fetchUsersFailed": "載入使用者失敗，請重試。",
+    "addExpenseFailed": "新增費用失敗，請檢查網路連線後重試。",
+    "createGroupFailed": "建立群組失敗，請重試。",
+    "addMemberFailed": "新增成員失敗，請重試。",
+    "settlementFailed": "結算群組失敗，請重試。",
+    "loadDataFailed": "載入資料失敗，請重新整理頁面。",
+    "networkError": "網路錯誤，請檢查您的連線。",
+    "unknownError": "發生未預期的錯誤，請重試。"
+  }
+}

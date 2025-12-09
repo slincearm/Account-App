@@ -4,55 +4,48 @@ import { Plus, Users, History, CheckCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useGroups } from "../hooks/useGroups";
 import CreateGroupModal from "../components/CreateGroupModal";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore"; // For direct settlement logic
-import { db } from "../lib/firebase";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
     const { currentUser } = useAuth();
     const { activeGroups, loading, createGroup } = useGroups();
-    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
-    // Temporary function for "Settle" button in list. 
-    // Requirement 4: "Press settlement button... show amount... confirm settle".
-    // The requirement says "Next to accounting group add settlement button".
-    // And "After pressing... display total amount... press settle button (confirm)".
-    // So clicking "Settle" on dashboard should probably -> Go to Settlement view.
-    // I will make a route for settlement: /settle/:groupId
-
-    const handleSettleClick = (groupId) => {
+    const handleSettleClick = (groupId: string): void => {
         navigate(`/settle/${groupId}`);
     };
 
-    if (loading) return <div className="container text-center mt-10">Loading groups...</div>;
+    if (loading) return <div className="container text-center mt-10">{t('common.loading')}</div>;
 
     return (
         <>
             <div className="flex-between" style={{ marginBottom: "2rem" }}>
                 <div>
-                    <h1 className="text-gradient" style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Dashboard</h1>
-                    <p style={{ color: "var(--text-secondary)" }}>Welcome back, {currentUser?.displayName}</p>
+                    <h1 className="text-gradient" style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>{t('dashboard.title')}</h1>
+                    <p style={{ color: "var(--text-secondary)" }}>{t('common.welcome')}, {currentUser?.displayName}</p>
                 </div>
                 <div className="flex-center" style={{ gap: "1rem" }}>
                     <Link to="/history" className="btn btn-secondary">
                         <History size={18} />
-                        <span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>History</span>
+                        <span className="hide-mobile">{t('dashboard.history')}</span>
                     </Link>
                     <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
                         <Plus size={18} />
-                        New Group
+                        {t('dashboard.newGroup')}
                     </button>
                 </div>
             </div>
 
             <div>
-                <h2 style={{ marginBottom: "1rem", fontSize: "1.25rem" }}>Active Groups</h2>
+                <h2 style={{ marginBottom: "1rem", fontSize: "1.25rem" }}>{t('dashboard.activeGroups')}</h2>
 
                 {activeGroups.length === 0 ? (
                     <div className="card text-center" style={{ padding: "3rem" }}>
-                        <p style={{ color: "var(--text-muted)", marginBottom: "1rem" }}>No active groups found.</p>
+                        <p style={{ color: "var(--text-muted)", marginBottom: "1rem" }}>{t('dashboard.noGroups')}</p>
                         <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-                            Create your first group
+                            {t('dashboard.createFirst')}
                         </button>
                     </div>
                 ) : (
@@ -72,7 +65,7 @@ export default function Dashboard() {
                                         <div>
                                             <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>{group.name}</h3>
                                             <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                                                {group.members?.length} Members
+                                                {group.members?.length} {t('dashboard.members')}
                                             </p>
                                         </div>
                                     </div>
@@ -82,10 +75,10 @@ export default function Dashboard() {
                                     className="btn btn-secondary"
                                     style={{ marginLeft: "1rem" }}
                                     onClick={() => handleSettleClick(group.id)}
-                                    title="Settle Up"
+                                    title={t('dashboard.settle')}
                                 >
                                     <CheckCircle size={18} style={{ color: "hsl(var(--color-success))" }} />
-                                    <span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>Settle</span>
+                                    <span className="hide-mobile">{t('dashboard.settle')}</span>
                                 </button>
                             </div>
                         ))}

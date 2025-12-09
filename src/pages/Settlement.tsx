@@ -1,24 +1,29 @@
-import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { memo } from "react";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
 import { useSettlement } from "../hooks/useSettlement";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { useTranslation } from "react-i18next";
+import { Member } from "../types";
 
 export default function Settlement() {
     const { groupId } = useParams();
+    if (!groupId) return <div className="container text-center mt-10">Invalid group ID</div>;
+
     const navigate = useNavigate();
-    const { group, members, loading: groupLoading } = useGroup(groupId);
+    const { members, loading: groupLoading } = useGroup(groupId);
     const { expenses, loading: expensesLoading } = useExpenses(groupId);
+    const { t } = useTranslation();
 
     const { totalSpend, plan: settlementPlan } = useSettlement(expenses, members);
 
-    if (groupLoading || expensesLoading) return <div className="container text-center mt-10">Calculating...</div>;
+    if (groupLoading || expensesLoading) return <div className="container text-center mt-10">{t('common.loading')}</div>;
 
     const handleSettle = async () => {
-        if (!window.confirm("Are you sure you want to settle this group? This will mark it as settled.")) return;
+        if (!window.confirm(t('settlement.confirmMessage'))) return;
 
         try {
             await updateDoc(doc(db, "groups", groupId), {
@@ -28,7 +33,7 @@ export default function Settlement() {
             navigate("/");
         } catch (err) {
             console.error("Failed to settle:", err);
-            // alert("Failed to settle group. Please try again.");
+            alert(t('settlement.failed'));
         }
     };
 
@@ -36,30 +41,30 @@ export default function Settlement() {
         <div className="container" style={{ maxWidth: "800px" }}>
             <div className="flex-center" style={{ justifyContent: "flex-start", gap: "1rem", marginBottom: "2rem" }}>
                 <Link to="/" style={{ color: "var(--text-secondary)" }}><ArrowLeft /></Link>
-                <h1 className="text-gradient" style={{ fontSize: "2rem" }}>Settlement</h1>
+                <h1 className="text-gradient" style={{ fontSize: "2rem" }}>{t('settlement.title')}</h1>
             </div>
 
             <div className="card" style={{ textAlign: "center", marginBottom: "2rem", padding: "3rem 1rem" }}>
-                <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem" }}>Total Group Spending</p>
+                <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem" }}>{t('settlement.totalSpend')}</p>
                 <div style={{ fontSize: "3rem", fontWeight: "bold", color: "var(--text-primary)" }}>
                     ${totalSpend.toFixed(2)}
                 </div>
             </div>
 
-            <h2 style={{ marginBottom: "1rem" }}>Payment Plan</h2>
+            <h2 style={{ marginBottom: "1rem" }}>{t('settlement.paymentPlan')}</h2>
             <div style={{ display: "grid", gap: "1rem", marginBottom: "3rem" }}>
                 {settlementPlan.length === 0 ? (
                     <div className="card text-center" style={{ padding: "2rem" }}>
                         <CheckCircle size={48} style={{ color: "hsl(var(--color-success))", marginBottom: "1rem" }} />
-                        <h3>All Settled!</h3>
-                        <p style={{ color: "var(--text-muted)" }}>Everyone is even. No payments needed.</p>
+                        <h3>{t('settlement.allSettled')}</h3>
+                        <p style={{ color: "var(--text-muted)" }}>{t('settlement.noPayments')}</p>
                     </div>
                 ) : (
                     settlementPlan.map((item, idx) => (
                         <div key={idx} className="card flex-between">
                             <div className="flex-center" style={{ gap: "1rem" }}>
                                 <UserBadge uid={item.from} members={members} />
-                                <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>pays</div>
+                                <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>{t('settlement.pays')}</div>
                                 <UserBadge uid={item.to} members={members} />
                             </div>
                             <div style={{ fontSize: "1.25rem", fontWeight: "bold", color: "hsl(var(--color-accent))" }}>
@@ -76,22 +81,22 @@ export default function Settlement() {
                 onClick={handleSettle}
             >
                 <CheckCircle size={24} />
-                Confirm Settlement
+                {t('settlement.confirmSettle')}
             </button>
         </div>
     );
 }
 
-function UserBadge({ uid, members }) {
-    const user = members.find(m => m.uid === uid);
+const UserBadge = memo(({ uid, members }: { uid: string; members: Member[] }) => {
+    const user = members.find((m: Member) => m.uid === uid);
     return (
         <div className="flex-center" style={{ gap: "0.5rem" }}>
             {user?.photoURL ? (
-                <img src={user.photoURL} style={{ width: 32, height: 32, borderRadius: "50%" }} />
+                <img src={user.photoURL} style={{ width: 32, height: 32, borderRadius: "50%" }} alt={user.displayName} />
             ) : (
                 <div style={{ width: 32, height: 32, background: "gray", borderRadius: "50%" }} />
             )}
             <span style={{ fontWeight: 500 }}>{user?.displayName || "Unknown"}</span>
         </div>
     );
-}
+});

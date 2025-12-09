@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, FormEvent, memo } from "react";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { CreateGroupModalProps } from "../types";
 
-export default function CreateGroupModal({ onClose, onCreate }) {
-    const [name, setName] = useState(new Date().toISOString().split('T')[0]);
-    const [loading, setLoading] = useState(false);
+function CreateGroupModal({ onClose, onCreate }: CreateGroupModalProps) {
+    const defaultDate = new Date().toISOString().split('T')[0] || '';
+    const [name, setName] = useState<string>(defaultDate);
+    const [loading, setLoading] = useState<boolean>(false);
+    const { t } = useTranslation();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
         setLoading(true);
         try {
@@ -13,6 +17,7 @@ export default function CreateGroupModal({ onClose, onCreate }) {
             onClose();
         } catch (error) {
             console.error("Failed to create group", error);
+            alert(t('errors.createGroupFailed'));
         } finally {
             setLoading(false);
         }
@@ -44,28 +49,28 @@ export default function CreateGroupModal({ onClose, onCreate }) {
                     <X size={20} />
                 </button>
 
-                <h3 style={{ marginBottom: "1.5rem" }}>Create New Group</h3>
+                <h3 style={{ marginBottom: "1.5rem" }}>{t('modal.createGroup')}</h3>
 
                 <form onSubmit={handleSubmit}>
                     <div style={{ marginBottom: "1.5rem" }}>
                         <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-                            Group Name
+                            {t('modal.groupName')}
                         </label>
                         <input
                             type="text"
                             className="input"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g. 2024-12-08"
+                            placeholder={t('modal.groupNamePlaceholder')}
                         />
                     </div>
 
                     <div className="flex-center" style={{ gap: "1rem" }}>
                         <button type="button" className="btn btn-secondary" onClick={onClose} style={{ flex: 1 }}>
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 1 }}>
-                            {loading ? "Creating..." : "Create"}
+                            {loading ? t('common.loading') : t('modal.create')}
                         </button>
                     </div>
                 </form>
@@ -73,3 +78,5 @@ export default function CreateGroupModal({ onClose, onCreate }) {
         </div>
     );
 }
+
+export default memo(CreateGroupModal);

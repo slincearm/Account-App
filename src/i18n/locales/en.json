@@ -1,0 +1,107 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "signOut": "Sign Out",
+    "welcome": "Welcome back"
+  },
+  "network": {
+    "offline": "Offline Mode - Using Cached Data",
+    "online": "Back Online - Syncing Data",
+    "offlineNotice": "You are currently offline. Changes will sync when you're back online."
+  },
+  "auth": {
+    "login": "Sign in with Google",
+    "loginTitle": "Expense Tracker",
+    "loginDescription": "Track and split expenses with your groups",
+    "pending": "Account Pending Approval",
+    "pendingMessage": "Your account is awaiting administrator approval. Please check back later.",
+    "pendingDescription": "Once approved, you'll be able to create groups and track expenses."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "newGroup": "New Group",
+    "activeGroups": "Active Groups",
+    "noGroups": "No active groups found.",
+    "createFirst": "Create your first group",
+    "members": "Members",
+    "settle": "Settle",
+    "history": "History"
+  },
+  "group": {
+    "details": "Group Details",
+    "addExpense": "Add Expense",
+    "addMember": "Add Member",
+    "expenses": "Expenses",
+    "noExpenses": "No expenses yet.",
+    "startTracking": "Start tracking your group expenses",
+    "totalSpending": "Total Spending",
+    "paidBy": "paid by",
+    "split": "split between"
+  },
+  "expense": {
+    "add": "Add New Expense",
+    "description": "Description",
+    "descriptionPlaceholder": "What was this expense for?",
+    "amount": "Amount",
+    "category": "Category",
+    "paidBy": "Paid By",
+    "splitBetween": "Split Between",
+    "date": "Date",
+    "selectCategory": "Select a category",
+    "selectPayer": "Select who paid",
+    "selectMembers": "Select members to split with",
+    "categories": {
+      "food": "Food & Dining",
+      "transport": "Transportation",
+      "entertainment": "Entertainment",
+      "shopping": "Shopping",
+      "utilities": "Utilities",
+      "other": "Other"
+    }
+  },
+  "settlement": {
+    "title": "Settlement",
+    "totalSpend": "Total Group Spending",
+    "paymentPlan": "Payment Plan",
+    "allSettled": "All Settled!",
+    "noPayments": "Everyone is even. No payments needed.",
+    "confirmSettle": "Confirm Settlement",
+    "confirmMessage": "Are you sure you want to settle this group? This will mark it as settled.",
+    "pays": "pays",
+    "failed": "Failed to settle group. Please try again."
+  },
+  "history": {
+    "title": "History",
+    "settledGroups": "Settled Groups",
+    "noHistory": "No settled groups yet.",
+    "keepTracking": "Keep tracking expenses to see your history here.",
+    "settledOn": "Settled on",
+    "viewDetails": "View Details"
+  },
+  "modal": {
+    "createGroup": "Create New Group",
+    "groupName": "Group Name",
+    "groupNamePlaceholder": "Enter group name",
+    "create": "Create Group",
+    "addMember": "Add Member",
+    "selectUser": "Select a user to add",
+    "add": "Add Member",
+    "alreadyMember": "Already a member"
+  },
+  "errors": {
+    "fetchUsersFailed": "Failed to load users. Please try again.",
+    "addExpenseFailed": "Failed to add expense. Please check your connection and try again.",
+    "createGroupFailed": "Failed to create group. Please try again.",
+    "addMemberFailed": "Failed to add member. Please try again.",
+    "settlementFailed": "Failed to settle group. Please try again.",
+    "loadDataFailed": "Failed to load data. Please refresh the page.",
+    "networkError": "Network error. Please check your connection.",
+    "unknownError": "An unexpected error occurred. Please try again."
+  }
+}

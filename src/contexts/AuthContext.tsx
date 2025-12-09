@@ -1,42 +1,54 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import {
     GoogleAuthProvider,
     signInWithPopup,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    User as FirebaseUser,
+    UserCredential
 } from "firebase/auth";
 import {
     doc,
     setDoc,
     onSnapshot,
     serverTimestamp,
-    getDoc
+    getDoc,
+    Unsubscribe
 } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
+import { AuthContextType, UserData } from "../types";
 
-const AuthContext = createContext();
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
-    return useContext(AuthContext);
+export function useAuth(): AuthContextType {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 }
 
-export function AuthProvider({ children }) {
-    const [currentUser, setCurrentUser] = useState(null);
-    const [userData, setUserData] = useState(null); // Firestore data (isApproved)
-    const [loading, setLoading] = useState(true);
+interface AuthProviderProps {
+    children: ReactNode;
+}
 
-    const login = () => {
+export function AuthProvider({ children }: AuthProviderProps) {
+    const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+    const [userData, setUserData] = useState<UserData | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    const login = (): Promise<UserCredential> => {
         return signInWithPopup(auth, new GoogleAuthProvider());
     };
 
-    const logout = () => {
+    const logout = (): Promise<void> => {
         return signOut(auth);
     };
 
     useEffect(() => {
-        let unsubscribeSnapshot = null;
+        let unsubscribeSnapshot: Unsubscribe | null = null;
 
-        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user: FirebaseUser | null) => {
             if (user) {
                 setCurrentUser(user);
 
@@ -58,8 +70,8 @@ export function AuthProvider({ children }) {
 
                 // Listen to real-time updates for approval status
                 unsubscribeSnapshot = onSnapshot(userRef, (doc) => {
-                    const data = doc.data();
-                    setUserData(data);
+                    const data = doc.data() as UserData | undefined;
+                    setUserData(data || null);
                     // Optionally merge into currentUser or keep separate
                 }, (error) => {
                     console.error("Error fetching user data:", error);

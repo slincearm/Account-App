@@ -1,24 +1,39 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { X, UserPlus } from "lucide-react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { UserData } from "../types";
+import { useTranslation } from "react-i18next";
 
-export default function AddMemberModal({ currentMemberIds, onClose, onAdd }) {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+interface AddMemberModalProps {
+    currentMemberIds: string[];
+    onClose: () => void;
+    onAdd: (uid: string) => Promise<void>;
+}
+
+function AddMemberModal({ currentMemberIds, onClose, onAdd }: AddMemberModalProps) {
+    const [users, setUsers] = useState<UserData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchUsers = async () => {
-            // Fetch all approved users
-            const q = query(
-                collection(db, "users"),
-                where("isApproved", "==", true)
-            );
-            const snap = await getDocs(q);
-            const allUsers = snap.docs.map(d => d.data());
-            // Filter out existing members
-            setUsers(allUsers.filter(u => !currentMemberIds.includes(u.uid)));
-            setLoading(false);
+            try {
+                // Fetch all approved users
+                const q = query(
+                    collection(db, "users"),
+                    where("isApproved", "==", true)
+                );
+                const snap = await getDocs(q);
+                const allUsers = snap.docs.map(d => d.data() as UserData);
+                // Filter out existing members
+                setUsers(allUsers.filter(u => !currentMemberIds.includes(u.uid)));
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
+                alert(t('errors.fetchUsersFailed'));
+            } finally {
+                setLoading(false);
+            }
         };
         fetchUsers();
     }, [currentMemberIds]);
@@ -86,3 +101,5 @@ export default function AddMemberModal({ currentMemberIds, onClose, onAdd }) {
         </div>
     );
 }
+
+export default memo(AddMemberModal);

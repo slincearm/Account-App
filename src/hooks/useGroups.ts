@@ -10,12 +10,13 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../contexts/AuthContext";
+import { Group, UseGroupsReturn } from "../types";
 
-export function useGroups() {
+export function useGroups(): UseGroupsReturn {
     const { currentUser } = useAuth();
-    const [activeGroups, setActiveGroups] = useState([]);
-    const [settledGroups, setSettledGroups] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [activeGroups, setActiveGroups] = useState<Group[]>([]);
+    const [settledGroups, setSettledGroups] = useState<Group[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -30,7 +31,7 @@ export function useGroups() {
             const allGroups = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            } as Group));
 
             setActiveGroups(allGroups.filter(g => g.status === 'active'));
             setSettledGroups(allGroups.filter(g => g.status === 'settled'));
@@ -43,7 +44,7 @@ export function useGroups() {
         return unsubscribe;
     }, [currentUser]);
 
-    const createGroup = async (name) => {
+    const createGroup = async (name: string): Promise<void> => {
         if (!currentUser) return;
 
         // Default name if empty is current date YYYY-MM-DD (Handled by caller or here)
@@ -56,10 +57,10 @@ export function useGroups() {
                 createdByUid: currentUser.uid,
                 members: [currentUser.uid], // Currently only creator starts in group, others added later? or select logic?
                 // Requirement 2b: "Display members only".
-                // Requirement 4a: "Select fields... share with users". 
+                // Requirement 4a: "Select fields... share with users".
                 // implies we might select users per expense, BUT standard logic is group has members.
                 // For now, assume creator is sole member initially unless we add "Add Member to Group" feature.
-                // Actually, requirement 2b says "the user joined accounting groups". 
+                // Actually, requirement 2b says "the user joined accounting groups".
                 // I'll stick to creator-only initially or maybe add logic to invite.
                 // Wait, prompt 4a says "choose users to split". This implies users are ALREADY in the group.
                 // I will add a way to add users to group later, or maybe ALL approved users are available to add?
@@ -69,7 +70,8 @@ export function useGroups() {
             });
         } catch (err) {
             console.error("Error creating group:", err);
-            throw err;
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to create group: ${errorMessage}`);
         }
     };
 

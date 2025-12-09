@@ -1,0 +1,107 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "back": "返回",
+    "signOut": "退出",
+    "welcome": "欢迎回来"
+  },
+  "network": {
+    "offline": "离线模式 - 使用缓存数据",
+    "online": "已连线 - 正在同步数据",
+    "offlineNotice": "您目前处于离线状态。更改将在您连线后同步。"
+  },
+  "auth": {
+    "login": "使用 Google 登录",
+    "loginTitle": "费用追踪器",
+    "loginDescription": "与您的群组追踪和分摊费用",
+    "pending": "账号待审核",
+    "pendingMessage": "您的账号正在等待管理员审核，请稍后再回来查看。",
+    "pendingDescription": "审核通过后，您将能够创建群组并追踪费用。"
+  },
+  "dashboard": {
+    "title": "控制台",
+    "newGroup": "新建群组",
+    "activeGroups": "活跃群组",
+    "noGroups": "目前没有活跃的群组。",
+    "createFirst": "创建您的第一个群组",
+    "members": "成员",
+    "settle": "结算",
+    "history": "历史记录"
+  },
+  "group": {
+    "details": "群组详情",
+    "addExpense": "添加费用",
+    "addMember": "添加成员",
+    "expenses": "费用记录",
+    "noExpenses": "暂无费用记录。",
+    "startTracking": "开始追踪您的群组费用",
+    "totalSpending": "总支出",
+    "paidBy": "由",
+    "split": "分摊于"
+  },
+  "expense": {
+    "add": "添加费用",
+    "description": "描述",
+    "descriptionPlaceholder": "这笔费用是什么？",
+    "amount": "金额",
+    "category": "类别",
+    "paidBy": "付款人",
+    "splitBetween": "分摊对象",
+    "date": "日期",
+    "selectCategory": "选择类别",
+    "selectPayer": "选择付款人",
+    "selectMembers": "选择分摊成员",
+    "categories": {
+      "food": "餐饮美食",
+      "transport": "交通运输",
+      "entertainment": "娱乐休闲",
+      "shopping": "购物消费",
+      "utilities": "水电燃气",
+      "other": "其他"
+    }
+  },
+  "settlement": {
+    "title": "结算",
+    "totalSpend": "群组总支出",
+    "paymentPlan": "付款计划",
+    "allSettled": "全部结清！",
+    "noPayments": "大家都结清了，不需要付款。",
+    "confirmSettle": "确认结算",
+    "confirmMessage": "确定要结算此群组吗？这将会标记为已结算。",
+    "pays": "支付给",
+    "failed": "结算失败，请重试。"
+  },
+  "history": {
+    "title": "历史记录",
+    "settledGroups": "已结算群组",
+    "noHistory": "暂无已结算的群组。",
+    "keepTracking": "继续追踪费用，历史记录将显示在这里。",
+    "settledOn": "结算于",
+    "viewDetails": "查看详情"
+  },
+  "modal": {
+    "createGroup": "创建新群组",
+    "groupName": "群组名称",
+    "groupNamePlaceholder": "输入群组名称",
+    "create": "创建群组",
+    "addMember": "添加成员",
+    "selectUser": "选择要添加的用户",
+    "add": "添加成员",
+    "alreadyMember": "已经是成员"
+  },
+  "errors": {
+    "fetchUsersFailed": "加载用户失败，请重试。",
+    "addExpenseFailed": "添加费用失败，请检查网络连接后重试。",
+    "createGroupFailed": "创建群组失败，请重试。",
+    "addMemberFailed": "添加成员失败，请重试。",
+    "settlementFailed": "结算群组失败，请重试。",
+    "loadDataFailed": "加载数据失败，请刷新页面。",
+    "networkError": "网络错误，请检查您的连接。",
+    "unknownError": "发生未预期的错误，请重试。"
+  }
+}

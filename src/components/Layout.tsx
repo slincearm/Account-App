@@ -1,9 +1,12 @@
 import { useAuth } from "../contexts/AuthContext";
 import { LogOut, User } from "lucide-react";
 import { Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Layout() {
     const { currentUser, logout } = useAuth();
+    const { t } = useTranslation();
 
     return (
         <>
@@ -16,9 +19,11 @@ export default function Layout() {
                 zIndex: 50
             }}>
                 <div className="container flex-between" style={{ padding: "1rem" }}>
-                    <h2 className="text-gradient" style={{ fontSize: "1.25rem" }}>Expense Tracker</h2>
+                    <h2 className="text-gradient" style={{ fontSize: "1.25rem" }}>{t('auth.loginTitle')}</h2>
 
                     <div className="flex-center" style={{ gap: "1rem" }}>
+                        <LanguageSwitcher />
+
                         <div className="flex-center" style={{ gap: "0.5rem" }}>
                             {currentUser?.photoURL ? (
                                 <img
@@ -31,7 +36,7 @@ export default function Layout() {
                                     <User size={18} />
                                 </div>
                             )}
-                            <span style={{ fontSize: "0.9rem", display: "none", "@media (min-width: 640px)": { display: "block" } }}>
+                            <span className="hide-mobile-block" style={{ fontSize: "0.9rem" }}>
                                 {currentUser?.displayName}
                             </span>
                         </div>
@@ -44,7 +49,7 @@ export default function Layout() {
                                 color: "var(--text-muted)",
                                 padding: "0.5rem"
                             }}
-                            title="Sign Out"
+                            title={t('common.signOut')}
                         >
                             <LogOut size={20} />
                         </button>

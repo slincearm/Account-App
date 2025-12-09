@@ -1,21 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent, memo } from "react";
 import { X, Check } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { Member, Expense } from "../types";
+import { useTranslation } from "react-i18next";
 
 const PREDEFINED_CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Travel"];
 
-export default function AddExpenseModal({ groupId, groupMembers, onClose, onAdd }) {
+interface AddExpenseModalProps {
+    groupId: string;
+    groupMembers: Member[];
+    onClose: () => void;
+    onAdd: (expense: Omit<Expense, 'id'>) => Promise<void>;
+}
+
+function AddExpenseModal({ groupMembers, onClose, onAdd }: Omit<AddExpenseModalProps, 'groupId'> & {groupId?: string}) {
     const { currentUser } = useAuth();
-    const [description, setDescription] = useState("");
-    const [amount, setAmount] = useState("");
-    const [category, setCategory] = useState("Breakfast"); // Default
-    const [customCategory, setCustomCategory] = useState("");
-    const [isCustomCategory, setIsCustomCategory] = useState(false);
-    const [date, setDate] = useState(new Date().toISOString().slice(0, 16)); // YYYY-MM-DDTHH:mm
-    const [payerUid, setPayerUid] = useState(currentUser?.uid);
-    const [involvedUids, setInvolvedUids] = useState([]);
+    const { t } = useTranslation();
+    const [description, setDescription] = useState<string>("");
+    const [amount, setAmount] = useState<string>("");
+    const [category, setCategory] = useState<string>("Breakfast");
+    const [customCategory, setCustomCategory] = useState<string>("");
+    const [isCustomCategory, setIsCustomCategory] = useState<boolean>(false);
+    const [date, setDate] = useState<string>(new Date().toISOString().slice(0, 16));
+    const [payerUid, setPayerUid] = useState<string>(currentUser?.uid || '');
+    const [involvedUids, setInvolvedUids] = useState<string[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Need mapping from uid to Display Name for the UI
     // groupMembers comes from parent: [{ uid, displayName, photoURL }]
@@ -27,24 +36,32 @@ export default function AddExpenseModal({ groupId, groupMembers, onClose, onAdd 
         }
     }, [groupMembers]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
+        setLoading(true);
 
-        const finalCategory = isCustomCategory ? customCategory : category;
-        const finalDescription = description.trim() === "" ? finalCategory : description;
+        try {
+            const finalCategory = isCustomCategory ? customCategory : category;
+            const finalDescription = description.trim() === "" ? finalCategory : description;
 
-        await onAdd({
-            description: finalDescription,
-            amount: parseFloat(amount),
-            category: finalCategory,
-            payerUid,
-            involvedUids,
-            timestamp: new Date(date)
-        });
-        onClose();
+            await onAdd({
+                description: finalDescription,
+                amount: parseFloat(amount),
+                category: finalCategory as any,
+                payerUid,
+                involvedUids,
+                timestamp: new Date(date) as any
+            });
+            onClose();
+        } catch (error) {
+            console.error("Failed to add expense:", error);
+            alert(t('errors.addExpenseFailed'));
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const toggleInvolved = (uid) => {
+    const toggleInvolved = (uid: string): void => {
         setInvolvedUids(prev => {
             if (prev.includes(uid)) {
                 return prev.filter(id => id !== uid);
@@ -208,11 +225,11 @@ export default function AddExpenseModal({ groupId, groupMembers, onClose, onAdd 
                     </div>
 
                     <div className="flex-center" style={{ gap: "1rem" }}>
-                        <button type="button" className="btn btn-secondary" onClick={onClose} style={{ flex: 1 }}>
+                        <button type="button" className="btn btn-secondary" onClick={onClose} style={{ flex: 1 }} disabled={loading}>
                             Cancel
                         </button>
-                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                            Add Expense
+                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
+                            {loading ? 'Adding...' : 'Add Expense'}
                         </button>
                     </div>
                 </form>
@@ -220,3 +237,5 @@ export default function AddExpenseModal({ groupId, groupMembers, onClose, onAdd 
         </div>
     );
 }
+
+export default memo(AddExpenseModal);

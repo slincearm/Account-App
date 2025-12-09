@@ -45,6 +45,17 @@ npm run dev
 
 應用程式將會在 `http://localhost:5173` 執行。
 
+## 可用的指令
+
+```bash
+npm run dev          # 啟動開發伺服器
+npm run build        # 建置生產版本
+npm run preview      # 預覽建置結果
+npm run type-check   # 執行 TypeScript 型別檢查
+npm run lint         # 執行 ESLint 程式碼檢查
+npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
+```
+
 ## 建置與部署
 
 1.  **建置專案**：
@@ -53,7 +64,13 @@ npm run dev
     npm run build
     ```
 
-2.  **部署至 Firebase**：
+2.  **清除快取**（可選）：
+    清除之前的建置檔案和快取。
+    ```bash
+    npm run clean
+    ```
+
+3.  **部署至 Firebase**：
     部署靜態檔案、Firestore 規則與索引。
     ```bash
     firebase deploy
