@@ -142,7 +142,10 @@
     "saveSuccess": "用户权限已成功更新！",
     "modified": "已修改",
     "adminBadge": "管理员",
-    "joined": "加入日期"
+    "joined": "加入日期",
+    "deleteUser": "删除用户",
+    "confirmDelete": "确定要删除用户 {{name}} 吗？此操作无法撤销。",
+    "deleteSuccess": "用户已成功删除！"
   },
   "errors": {
     "fetchUsersFailed": "加载用户失败，请重试。",
@@ -157,6 +160,7 @@
     "deleteExpenseFailed": "删除费用失败，请再试一次。",
     "updateExpenseFailed": "更新费用失败，请再试一次。",
     "loadUsersFailed": "加载用户列表失败，请重试。",
-    "updateUsersFailed": "更新用户权限失败，请重试。"
+    "updateUsersFailed": "更新用户权限失败，请重试。",
+    "deleteUserFailed": "删除用户失败，请再试一次。"
   }
 }

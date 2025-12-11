@@ -29,19 +29,19 @@
 
 /* Light Theme - Warm Off-White */
 [data-theme="light"] {
-  --bg-dark: #faf8f5;
-  --surface-dark: #fffcf7;
-  --text-primary: #2d2520;
-  --text-secondary: #6b5d54;
-  --text-muted: #8a7d72;
+  --bg-dark: #f5f3f0;
+  --surface-dark: #ffffff;
+  --text-primary: #1a1512;
+  --text-secondary: #4a4037;
+  --text-muted: #6b5d54;
 
-  --glass-bg: rgba(255, 252, 247, 0.85);
-  --glass-border: rgba(45, 37, 32, 0.08);
-  --glass-shadow: 0 4px 6px -1px rgba(45, 37, 32, 0.04), 0 2px 4px -1px rgba(45, 37, 32, 0.02);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(26, 21, 18, 0.15);
+  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
 
   --input-bg: #ffffff;
-  --input-border: rgba(45, 37, 32, 0.15);
-  --input-text: #2d2520;
+  --input-border: rgba(26, 21, 18, 0.2);
+  --input-text: #1a1512;
 }
 
 [data-theme="light"] body {
@@ -101,6 +101,11 @@ button {
 
 .card:hover {
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] .card:hover {
+  border-color: rgba(26, 21, 18, 0.25);
+  box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
 }
 
 .btn {
@@ -237,6 +242,12 @@ select.input option {
   to {
     opacity: 1;
   }
+}
+
+/* Header Light Theme */
+[data-theme="light"] .app-header {
+  background: #eddce4 !important;
+  border-bottom: 1px solid rgba(26, 21, 18, 0.1) !important;
 }
 
 /* Scrollbar */

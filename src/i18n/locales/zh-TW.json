@@ -142,7 +142,10 @@
     "saveSuccess": "使用者權限已成功更新！",
     "modified": "已修改",
     "adminBadge": "管理者",
-    "joined": "加入日期"
+    "joined": "加入日期",
+    "deleteUser": "刪除使用者",
+    "confirmDelete": "確定要刪除使用者 {{name}} 嗎？此動作無法復原。",
+    "deleteSuccess": "使用者已成功刪除！"
   },
   "errors": {
     "fetchUsersFailed": "載入使用者失敗，請重試。",
@@ -157,6 +160,7 @@
     "deleteExpenseFailed": "刪除費用失敗，請再試一次。",
     "updateExpenseFailed": "更新費用失敗，請再試一次。",
     "loadUsersFailed": "載入使用者列表失敗，請重試。",
-    "updateUsersFailed": "更新使用者權限失敗，請重試。"
+    "updateUsersFailed": "更新使用者權限失敗，請重試。",
+    "deleteUserFailed": "刪除使用者失敗，請再試一次。"
   }
 }

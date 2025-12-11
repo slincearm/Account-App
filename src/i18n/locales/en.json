@@ -145,7 +145,10 @@
     "saveSuccess": "User permissions updated successfully!",
     "modified": "Modified",
     "adminBadge": "Admin",
-    "joined": "Joined"
+    "joined": "Joined",
+    "deleteUser": "Delete User",
+    "confirmDelete": "Are you sure you want to delete user {{name}}? This action cannot be undone.",
+    "deleteSuccess": "User deleted successfully!"
   },
   "errors": {
     "fetchUsersFailed": "Failed to load users. Please try again.",
@@ -160,6 +163,7 @@
     "deleteExpenseFailed": "Failed to delete expense. Please try again.",
     "updateExpenseFailed": "Failed to update expense. Please try again.",
     "loadUsersFailed": "Failed to load user list. Please try again.",
-    "updateUsersFailed": "Failed to update user permissions. Please try again."
+    "updateUsersFailed": "Failed to update user permissions. Please try again.",
+    "deleteUserFailed": "Failed to delete user. Please try again."
   }
 }

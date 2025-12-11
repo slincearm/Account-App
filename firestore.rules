@@ -9,6 +9,12 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isApproved == true;
     }
 
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
     // Helper function to check if user is a member of a group
     function isMemberOfGroup(groupId) {
       return request.auth != null &&
@@ -24,12 +30,16 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
 
       // Users can update their own document, but cannot change approval status
-      allow update: if request.auth != null &&
-                       request.auth.uid == userId &&
-                       request.resource.data.isApproved == resource.data.isApproved;
+      // Admins can update any user (including approval status)
+      allow update: if (request.auth != null &&
+                        request.auth.uid == userId &&
+                        request.resource.data.isApproved == resource.data.isApproved &&
+                        request.resource.data.isAdmin == resource.data.isAdmin) ||
+                       isAdmin();
 
-      // Only allow delete by the user themselves (optional, could be restricted)
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      // Users can delete themselves, or admins can delete any user
+      allow delete: if (request.auth != null && request.auth.uid == userId) ||
+                       isAdmin();
     }
 
     // Groups collection

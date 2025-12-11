@@ -11,7 +11,7 @@ export default function Layout() {
 
     return (
         <>
-            <header style={{
+            <header className="app-header" style={{
                 borderBottom: "1px solid var(--glass-border)",
                 background: "rgba(15, 23, 42, 0.8)",
                 backdropFilter: "blur(12px)",
@@ -27,8 +27,8 @@ export default function Layout() {
                         <LanguageSwitcher />
 
                         {isAdmin && (
-                            <Link 
-                                to="/admin" 
+                            <Link
+                                to="/admin"
                                 className="btn btn-secondary"
                                 style={{ padding: "0.5rem 1rem" }}
                                 title={t('admin.panel')}
