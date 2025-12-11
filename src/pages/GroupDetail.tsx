@@ -35,6 +35,85 @@ export default function GroupDetail() {
         }
     };
 
+    // Helper to find member name
+    const getMemberName = (uid: string): string => members.find(m => m.uid === uid)?.displayName || t('group.unknown');
+
+    // Calculate total spending
+    const totalSpending = useMemo(() => {
+        return expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    }, [expenses]);
+
+    // Get date range for the group (earliest expense to today)
+    const dateRange = useMemo(() => {
+        if (expenses.length === 0) return '';
+
+        // Find earliest expense date
+        const earliestExpense = expenses.reduce((earliest, expense) => {
+            const expenseDate = expense.timestamp?.toDate();
+            if (!expenseDate) return earliest;
+            if (!earliest || expenseDate < earliest) return expenseDate;
+            return earliest;
+        }, null as Date | null);
+
+        if (!earliestExpense) return '';
+
+        const locale = t('common.locale', { defaultValue: 'zh-TW' });
+
+        const formatDate = (date: Date) => {
+            if (locale === 'en') {
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } else {
+                return date.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+        };
+
+        return `${formatDate(earliestExpense)} - ${t('group.today')}`;
+    }, [expenses, t]);
+
+    // Format group creation date for display
+    const groupCreatedDate = useMemo(() => {
+        if (!group) return '';
+        const createdDate = group.createdAt.toDate();
+        const locale = t('common.locale', { defaultValue: 'zh-TW' });
+
+        if (locale === 'en') {
+            return createdDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        } else {
+            return createdDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+    }, [group, t]);
+
+    // Calculate who paid and who owes
+    const balances = useMemo(() => {
+        const paid: Record<string, number> = {};
+        const share: Record<string, number> = {};
+
+        // Initialize all members
+        members.forEach(m => {
+            paid[m.uid] = 0;
+            share[m.uid] = 0;
+        });
+
+        // Calculate paid and share amounts
+        expenses.forEach(expense => {
+            paid[expense.payerUid] = (paid[expense.payerUid] || 0) + expense.amount;
+            const splitCount = expense.involvedUids?.length || 1;
+            const perPerson = expense.amount / splitCount;
+            expense.involvedUids?.forEach(uid => {
+                share[uid] = (share[uid] || 0) + perPerson;
+            });
+        });
+
+        // Calculate balances (positive = owed money, negative = owes money)
+        return Object.keys(paid).map(uid => ({
+            uid,
+            name: getMemberName(uid),
+            paid: paid[uid] || 0,
+            share: share[uid] || 0,
+            balance: (paid[uid] || 0) - (share[uid] || 0)
+        })).sort((a, b) => b.balance - a.balance);
+    }, [expenses, members]);
+
     // Group expenses by category for Pie Chart
     const chartData = useMemo(() => {
         const data: Record<string, number> = {};
@@ -51,17 +130,26 @@ export default function GroupDetail() {
     if (groupLoading || expensesLoading) return <div className="container text-center mt-10">{t('group.loadingDetails')}</div>;
     if (!group) return <div className="container text-center mt-10">{t('group.groupNotFound')}</div>;
 
-    // Helper to find member name
-    const getMemberName = (uid: string): string => members.find(m => m.uid === uid)?.displayName || t('group.unknown');
-
     return (
         <>
             <div className="flex-between" style={{ marginBottom: "1.5rem" }}>
                 <div className="flex-center" style={{ gap: "1rem" }}>
                     <Link to="/" style={{ color: "var(--text-secondary)" }}><ArrowLeft /></Link>
                     <div>
-                        <h1 className="text-gradient" style={{ fontSize: "1.75rem" }}>{group.name}</h1>
-                        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                            <h1 className="text-gradient" style={{ fontSize: "1.75rem", margin: 0 }}>{group.name}</h1>
+                            <span style={{
+                                fontSize: "0.85rem",
+                                color: "var(--text-muted)",
+                                padding: "0.25rem 0.75rem",
+                                background: "rgba(139, 92, 246, 0.1)",
+                                borderRadius: "6px",
+                                border: "1px solid rgba(139, 92, 246, 0.2)"
+                            }}>
+                                {groupCreatedDate}
+                            </span>
+                        </div>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", margin: "0.25rem 0 0 0" }}>
                             {members.length} {t('group.members')}
                         </p>
                     </div>
@@ -76,30 +164,90 @@ export default function GroupDetail() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
                 {/* Chart Section */}
                 <div className="card" style={{ minHeight: "300px", display: "flex", flexDirection: "column" }}>
-                    <h3 style={{ marginBottom: "1rem" }}>{t('group.spendingByCategory')}</h3>
+                    <h3 style={{ marginBottom: "0.5rem" }}>{t('group.spendingByCategory')}</h3>
+
+                    {/* Total Spending */}
+                    <div style={{
+                        textAlign: "center",
+                        marginBottom: "1rem",
+                        padding: "0.75rem",
+                        background: "rgba(139, 92, 246, 0.1)",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(139, 92, 246, 0.2)"
+                    }}>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
+                            {dateRange}
+                        </div>
+                        <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.25rem" }}>
+                            {t('group.totalSpending')}
+                        </div>
+                        <div style={{ fontSize: "1.75rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
+                            ${totalSpending.toFixed(2)}
+                        </div>
+                    </div>
+
                     {chartData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={250}>
-                            <PieChart>
-                                <Pie
-                                    data={chartData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {chartData.map((_entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <>
+                            <ResponsiveContainer width="100%" height={200}>
+                                <PieChart>
+                                    <Pie
+                                        data={chartData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={50}
+                                        outerRadius={70}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {chartData.map((_entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        contentStyle={{ background: "rgba(15, 23, 42, 0.9)", border: "none", borderRadius: "8px", color: "white" }}
+                                        formatter={(value) => `$${Number(value).toFixed(2)}`}
+                                    />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+
+                            {/* Balance Summary */}
+                            <div style={{ marginTop: "1rem", borderTop: "1px solid var(--glass-border)", paddingTop: "1rem" }}>
+                                <h4 style={{ fontSize: "0.9rem", marginBottom: "0.75rem", color: "var(--text-secondary)" }}>
+                                    {t('group.balanceSummary')}
+                                </h4>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                    {balances.map(b => (
+                                        <div key={b.uid} style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            fontSize: "0.85rem",
+                                            padding: "0.5rem",
+                                            background: "rgba(255, 255, 255, 0.03)",
+                                            borderRadius: "6px"
+                                        }}>
+                                            <div>
+                                                <span style={{ fontWeight: "500" }}>{b.name}</span>
+                                                <span style={{ color: "var(--text-muted)", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
+                                                    {t('group.paid')}: ${b.paid.toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <div style={{
+                                                fontWeight: "600",
+                                                color: b.balance > 0.01 ? "hsl(var(--color-success))" :
+                                                       b.balance < -0.01 ? "hsl(var(--color-danger))" :
+                                                       "var(--text-muted)"
+                                            }}>
+                                                {b.balance > 0.01 ? `+$${b.balance.toFixed(2)}` :
+                                                 b.balance < -0.01 ? `-$${Math.abs(b.balance).toFixed(2)}` :
+                                                 t('group.settled')}
+                                            </div>
+                                        </div>
                                     ))}
-                                </Pie>
-                                <Tooltip
-                                    contentStyle={{ background: "rgba(15, 23, 42, 0.9)", border: "none", borderRadius: "8px", color: "white" }}
-                                    formatter={(value) => `$${Number(value).toFixed(2)}`}
-                                />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </>
                     ) : (
                         <div className="flex-center" style={{ flex: 1, color: "var(--text-muted)" }}>{t('group.noExpenses')}</div>
                     )}

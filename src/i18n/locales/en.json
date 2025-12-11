@@ -8,7 +8,8 @@
     "edit": "Edit",
     "back": "Back",
     "signOut": "Sign Out",
-    "welcome": "Welcome back"
+    "welcome": "Welcome back",
+    "locale": "en"
   },
   "network": {
     "offline": "Offline Mode - Using Cached Data",
@@ -48,6 +49,10 @@
     "split": "split between",
     "confirmDeleteExpense": "Are you sure you want to delete expense '{{description}}'?",
     "spendingByCategory": "Spending by Category",
+    "balanceSummary": "Balance Summary",
+    "paid": "Paid",
+    "settled": "Settled",
+    "today": "Today",
     "members": "Members",
     "invalidGroupId": "Invalid group ID",
     "loadingDetails": "Loading details...",

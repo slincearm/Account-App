@@ -8,7 +8,8 @@
     "edit": "编辑",
     "back": "返回",
     "signOut": "退出",
-    "welcome": "欢迎回来"
+    "welcome": "欢迎回来",
+    "locale": "zh-CN"
   },
   "network": {
     "offline": "离线模式 - 使用缓存数据",
@@ -48,6 +49,10 @@
     "split": "分摊于",
     "confirmDeleteExpense": "确定要删除费用 '{{description}}' 吗？",
     "spendingByCategory": "各类别支出",
+    "balanceSummary": "收支明细",
+    "paid": "已支付",
+    "settled": "已结清",
+    "today": "今日",
     "members": "成员",
     "invalidGroupId": "无效的群组 ID",
     "loadingDetails": "加载详情中...",
