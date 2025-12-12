@@ -1,5 +1,49 @@
 # 更新日誌
 
+## [2024-12-12] - Firebase API 更新與 UI 增強
+
+### 技術改進
+
+#### Firebase Firestore 離線持久化 API 升級
+- 更新至 Firebase 最新的離線快取 API
+- 從棄用的 `enableMultiTabIndexedDbPersistence()` 遷移至 `initializeFirestore()` 配置
+- 使用 `persistentLocalCache()` 和 `persistentMultipleTabManager()`
+- 消除瀏覽器棄用警告，確保未來兼容性
+- 保持原有功能：離線資料持久化、多標籤同步、自動資料同步
+
+#### 類別明細彈窗
+- 點擊圓餅圖左側類別可查看該類別所有費用明細
+- 顯示類別總金額和費用數量
+- 費用列表包含描述、日期時間、付款人、分攤資訊
+- 點擊費用項目可直接進入編輯模式
+
+#### 模態框互動改進
+- 所有彈窗支援點擊背景關閉（與點擊 X 效果相同）
+- 點擊彈窗內容區域不會關閉（使用 stopPropagation）
+- 應用於 AddExpenseModal、AddMemberModal、CreateGroupModal
+
+#### 多語言完善
+- 新增繁體中文編輯費用相關翻譯（編輯費用、更新中...、更新費用）
+- 新增簡體中文編輯費用相關翻譯（编辑费用、更新中...、更新费用）
+- 英文翻譯已完整支援
+
+#### 依賴更新
+- React 升級至 19.2.3（從 19.2.0）
+- 包含 bug 修復和性能優化
+
+### 修改的檔案
+- `src/lib/firebase.ts`: 更新離線持久化 API
+- `src/pages/GroupDetail.tsx`: 新增類別明細彈窗
+- `src/components/AddExpenseModal.tsx`: 點擊背景關閉功能
+- `src/components/AddMemberModal.tsx`: 點擊背景關閉功能
+- `src/components/CreateGroupModal.tsx`: 點擊背景關閉功能
+- `src/i18n/locales/zh-TW.json`: 新增編輯費用翻譯
+- `src/i18n/locales/zh-CN.json`: 新增編輯費用翻譯
+- `package.json`: 更新 React 版本
+- `README.md`: 更新功能說明與技術堆疊
+
+---
+
 ## [2024-12-12] - 費用記錄分組與智能分類系統
 
 ### 新增功能
