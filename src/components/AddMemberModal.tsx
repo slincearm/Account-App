@@ -39,17 +39,24 @@ function AddMemberModal({ currentMemberIds, onClose, onAdd }: AddMemberModalProp
     }, [currentMemberIds]);
 
     return (
-        <div style={{
-            position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100
-        }}>
-            <div className="card" style={{ width: "90%", maxWidth: "400px", position: "relative" }}>
+        <div
+            style={{
+                position: "fixed",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "rgba(0,0,0,0.5)",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 100
+            }}
+            onClick={onClose}
+        >
+            <div
+                className="card"
+                style={{ width: "90%", maxWidth: "400px", position: "relative" }}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     onClick={onClose}
                     style={{

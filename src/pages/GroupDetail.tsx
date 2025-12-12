@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { Plus, UserPlus, ArrowLeft, Calendar, Trash2 } from "lucide-react";
+import { Plus, UserPlus, ArrowLeft, Calendar, Trash2, X } from "lucide-react";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
 import { Expense } from "../types";
@@ -23,6 +23,7 @@ export default function GroupDetail() {
     const [showAddExpense, setShowAddExpense] = useState(false);
     const [showAddMember, setShowAddMember] = useState(false);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const handleDeleteExpense = async (expenseId: string, description: string): Promise<void> => {
         if (!window.confirm(t('group.confirmDeleteExpense', { description }))) return;
@@ -123,9 +124,22 @@ export default function GroupDetail() {
         });
         return Object.keys(data).map(key => ({
             name: key === 'uncategorized' ? t('group.uncategorized') : t(`expense.categories.${key}`, { defaultValue: key }),
-            value: data[key]
+            value: data[key],
+            categoryKey: key // Keep original category key for filtering
         }));
     }, [expenses, t]);
+
+    // Get expenses for selected category
+    const categoryExpenses = useMemo(() => {
+        if (!selectedCategory) return [];
+        return expenses
+            .filter(e => (e.category || 'uncategorized') === selectedCategory)
+            .sort((a, b) => {
+                const timeA = a.timestamp?.toDate?.()?.getTime() || 0;
+                const timeB = b.timestamp?.toDate?.()?.getTime() || 0;
+                return timeB - timeA;
+            });
+    }, [expenses, selectedCategory]);
 
     // Group expenses by date
     const expensesByDate = useMemo(() => {
@@ -232,7 +246,26 @@ export default function GroupDetail() {
                                 {/* Category List */}
                                 <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                                     {chartData.map((entry, index) => (
-                                        <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                        <div
+                                            key={entry.name}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "0.5rem",
+                                                cursor: "pointer",
+                                                padding: "0.25rem 0.5rem",
+                                                borderRadius: "6px",
+                                                transition: "all 0.2s ease",
+                                                background: "transparent"
+                                            }}
+                                            onClick={() => setSelectedCategory(entry.categoryKey)}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = "transparent";
+                                            }}
+                                        >
                                             <div style={{
                                                 width: "12px",
                                                 height: "12px",
@@ -512,6 +545,144 @@ export default function GroupDetail() {
                         }
                     }}
                 />
+            )}
+
+            {/* Category Details Modal */}
+            {selectedCategory && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        background: "rgba(0,0,0,0.6)",
+                        backdropFilter: "blur(4px)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 100
+                    }}
+                    onClick={() => setSelectedCategory(null)}
+                >
+                    <div
+                        className="card"
+                        style={{ width: "90%", maxWidth: "600px", maxHeight: "80vh", overflowY: "auto", position: "relative" }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setSelectedCategory(null)}
+                            style={{
+                                position: "absolute",
+                                top: "1rem",
+                                right: "1rem",
+                                background: "none",
+                                border: "none",
+                                color: "var(--text-muted)",
+                                cursor: "pointer"
+                            }}
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h3 style={{ marginBottom: "1rem", color: "var(--text-primary)" }}>
+                            {selectedCategory === 'uncategorized'
+                                ? t('group.uncategorized')
+                                : t(`expense.categories.${selectedCategory}`, { defaultValue: selectedCategory })}
+                        </h3>
+
+                        <div style={{
+                            marginBottom: "1rem",
+                            padding: "0.75rem",
+                            background: "rgba(139, 92, 246, 0.1)",
+                            borderRadius: "8px",
+                            border: "1px solid rgba(139, 92, 246, 0.2)"
+                        }}>
+                            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                                {t('group.totalSpending')}
+                            </div>
+                            <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
+                                ${categoryExpenses.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                            </div>
+                            <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+                                {categoryExpenses.length} {categoryExpenses.length === 1 ? t('group.expenses').slice(0, -1) : t('group.expenses')}
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                            {categoryExpenses.map(expense => {
+                                const payerName = getMemberName(expense.payerUid);
+                                const splitCount = expense.involvedUids?.length || 1;
+                                const perPerson = expense.amount / splitCount;
+                                const expenseDate = expense.timestamp?.toDate?.();
+
+                                return (
+                                    <div
+                                        key={expense.id}
+                                        style={{
+                                            padding: "0.75rem",
+                                            background: "rgba(255, 255, 255, 0.03)",
+                                            borderRadius: "8px",
+                                            border: "1px solid var(--glass-border)",
+                                            cursor: "pointer",
+                                            transition: "all 0.2s ease"
+                                        }}
+                                        onClick={() => {
+                                            setSelectedCategory(null);
+                                            setEditingExpense(expense);
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+                                            e.currentTarget.style.borderColor = "hsl(var(--color-primary) / 0.3)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                                            e.currentTarget.style.borderColor = "var(--glass-border)";
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                                                    <h4 style={{ fontSize: "1rem", margin: 0 }}>{expense.description}</h4>
+                                                    {expenseDate && (
+                                                        <span style={{
+                                                            fontSize: "0.75rem",
+                                                            color: "var(--text-muted)",
+                                                            padding: "0.125rem 0.5rem",
+                                                            background: "rgba(139, 92, 246, 0.1)",
+                                                            borderRadius: "4px"
+                                                        }}>
+                                                            {expenseDate.toLocaleDateString('zh-TW')} {expenseDate.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: 0 }}>
+                                                    {t('group.paidBy')} <strong>{payerName}</strong>
+                                                    {' • '}
+                                                    <span style={{ color: "var(--text-muted)" }}>
+                                                        ${perPerson.toFixed(2)} / {splitCount}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div style={{
+                                                fontSize: "1.1rem",
+                                                fontWeight: "bold",
+                                                color: "hsl(var(--color-success))",
+                                                minWidth: "80px",
+                                                textAlign: "right"
+                                            }}>
+                                                ${expense.amount.toFixed(2)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {categoryExpenses.length === 0 && (
+                            <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem" }}>
+                                {t('group.noExpenses')}
+                            </p>
+                        )}
+                    </div>
+                </div>
             )}
         </>
     );

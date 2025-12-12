@@ -127,17 +127,24 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
     };
 
     return (
-        <div style={{
-            position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100
-        }}>
-            <div className="card" style={{ width: "90%", maxWidth: "500px", maxHeight: "90vh", overflowY: "auto", position: "relative" }}>
+        <div
+            style={{
+                position: "fixed",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "rgba(0,0,0,0.6)",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 100
+            }}
+            onClick={onClose}
+        >
+            <div
+                className="card"
+                style={{ width: "90%", maxWidth: "500px", maxHeight: "90vh", overflowY: "auto", position: "relative" }}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     onClick={onClose}
                     style={{
