@@ -84,22 +84,20 @@
     "adding": "新增中...",
     "addExpense": "新增費用",
     "categories": {
-      "Breakfast": "早餐",
-      "Lunch": "午餐",
-      "Dinner": "晚餐",
-      "Travel": "交通",
-      "DiningOut": "外食",
-      "Groceries": "食材",
-      "Electricity": "水電",
-      "Gas": "瓦斯",
-      "Internet": "網路",
-      "Miscellaneous": "雜項",
-      "food": "餐飲美食",
-      "transport": "交通運輸",
-      "entertainment": "娛樂休閒",
-      "shopping": "購物消費",
-      "utilities": "水電瓦斯",
-      "other": "其他"
+      "food": "食",
+      "clothing": "衣",
+      "housing": "住",
+      "transportation": "行",
+      "education": "育",
+      "entertainment": "樂",
+      "miscellaneous": "雜項"
+    },
+    "mealTimes": {
+      "breakfast": "早餐",
+      "brunch": "早午餐",
+      "lunch": "午餐",
+      "dinner": "晚餐",
+      "snack": "點心"
     }
   },
   "settlement": {

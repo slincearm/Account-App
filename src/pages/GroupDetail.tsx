@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Plus, UserPlus, ArrowLeft, Calendar, Trash2 } from "lucide-react";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
@@ -127,6 +127,46 @@ export default function GroupDetail() {
         }));
     }, [expenses, t]);
 
+    // Group expenses by date
+    const expensesByDate = useMemo(() => {
+        const grouped: Record<string, typeof expenses> = {};
+
+        expenses.forEach(expense => {
+            if (!expense.timestamp?.toDate) return;
+
+            const date = expense.timestamp.toDate();
+            const dateKey = date.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+
+            if (!grouped[dateKey]) {
+                grouped[dateKey] = [];
+            }
+            grouped[dateKey].push(expense);
+        });
+
+        // Sort by date (newest first) and sort expenses within each date by time (newest first)
+        return Object.entries(grouped)
+            .sort(([dateA], [dateB]) => {
+                const [yearA = 0, monthA = 0, dayA = 0] = dateA.split('/').map(Number);
+                const [yearB = 0, monthB = 0, dayB = 0] = dateB.split('/').map(Number);
+                const timeA = new Date(yearA, monthA - 1, dayA).getTime();
+                const timeB = new Date(yearB, monthB - 1, dayB).getTime();
+                return timeB - timeA;
+            })
+            .map(([date, exps]) => ({
+                date,
+                expenses: exps.sort((a, b) => {
+                    const timeA = a.timestamp?.toDate?.()?.getTime() || 0;
+                    const timeB = b.timestamp?.toDate?.()?.getTime() || 0;
+                    return timeB - timeA;
+                }),
+                totalAmount: exps.reduce((sum, e) => sum + e.amount, 0)
+            }));
+    }, [expenses]);
+
     if (groupLoading || expensesLoading) return <div className="container text-center mt-10">{t('group.loadingDetails')}</div>;
     if (!group) return <div className="container text-center mt-10">{t('group.groupNotFound')}</div>;
 
@@ -188,28 +228,59 @@ export default function GroupDetail() {
 
                     {chartData.length > 0 ? (
                         <>
-                            <ResponsiveContainer width="100%" height={200}>
-                                <PieChart>
-                                    <Pie
-                                        data={chartData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={50}
-                                        outerRadius={70}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {chartData.map((_entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ background: "rgba(15, 23, 42, 0.9)", border: "none", borderRadius: "8px", color: "white" }}
-                                        formatter={(value) => `$${Number(value).toFixed(2)}`}
-                                    />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                {/* Category List */}
+                                <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                    {chartData.map((entry, index) => (
+                                        <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                            <div style={{
+                                                width: "12px",
+                                                height: "12px",
+                                                borderRadius: "2px",
+                                                background: COLORS[index % COLORS.length]
+                                            }} />
+                                            <div style={{ fontSize: "0.8rem" }}>
+                                                <div style={{ color: "var(--text-primary)", fontWeight: "500" }}>{entry.name}</div>
+                                                <div style={{ color: "hsl(var(--color-primary))", fontWeight: "600" }}>
+                                                    ${(entry.value || 0).toFixed(2)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Pie Chart */}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <PieChart>
+                                            <Pie
+                                                data={chartData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={50}
+                                                outerRadius={70}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                {chartData.map((_entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                contentStyle={{
+                                                    background: "rgba(255, 255, 255, 0.95)",
+                                                    border: "1px solid var(--glass-border)",
+                                                    borderRadius: "8px",
+                                                    color: "#1a1512",
+                                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                                                }}
+                                                formatter={(value, name) => [`$${Number(value).toFixed(2)}`, name]}
+                                                labelStyle={{ color: "#1a1512", fontWeight: "600", marginBottom: "4px" }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
 
                             {/* Balance Summary */}
                             <div style={{ marginTop: "1rem", borderTop: "1px solid var(--glass-border)", paddingTop: "1rem" }}>
@@ -283,65 +354,125 @@ export default function GroupDetail() {
             </div>
 
             <div style={{ display: "grid", gap: "1rem" }}>
-                {expenses.map(expense => {
-                    const payerName = getMemberName(expense.payerUid);
-                    const splitCount = expense.involvedUids?.length || 1;
-                    const perPerson = expense.amount / splitCount;
-
-                    return (
-                        <div key={expense.id} className="card flex-between" style={{ cursor: "pointer" }} onClick={() => setEditingExpense(expense)}>
-                            <div className="flex-center" style={{ gap: "1rem", justifyContent: "flex-start" }}>
-                                <div style={{
-                                    width: 48, height: 48,
-                                    borderRadius: "12px",
-                                    background: "var(--surface-dark)",
-                                    display: "flex", flexDirection: "column",
-                                    alignItems: "center", justifyContent: "center",
-                                    border: "1px solid var(--glass-border)"
-                                }}>
-                                    <Calendar size={14} style={{ color: "var(--text-muted)" }} />
-                                    <span style={{ fontSize: "0.75rem", marginTop: "2px" }}>
-                                        {expense.timestamp?.toDate ?
-                                            expense.timestamp.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                                            : ''}
-                                    </span>
-                                    <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
-                                        {expense.timestamp?.toDate ?
-                                            expense.timestamp.toDate().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
-                                            : ''}
-                                    </span>
-                                </div>
-                                <div>
-                                    <h4 style={{ fontSize: "1.1rem" }}>{expense.description}</h4>
-                                    <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                                        <span style={{ color: "hsl(var(--color-primary))" }}>{t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}</span> • {t('group.paidBy')} <strong>{payerName}</strong>
-                                    </p>
-                                </div>
+                {expensesByDate.map(({ date, expenses: dailyExpenses, totalAmount }) => (
+                    <div key={date} className="card" style={{ padding: "1.25rem" }}>
+                        {/* Date Header */}
+                        <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginBottom: "1rem",
+                            paddingBottom: "0.75rem",
+                            borderBottom: "1px solid var(--glass-border)"
+                        }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <Calendar size={18} style={{ color: "hsl(var(--color-primary))" }} />
+                                <h3 style={{ fontSize: "1rem", fontWeight: "600", margin: 0 }}>{date}</h3>
                             </div>
-                            <div className="flex-center" style={{ gap: "1rem" }}>
-                                <div style={{ textAlign: "right" }}>
-                                    <div style={{ fontSize: "1.1rem", fontWeight: "bold", color: "hsl(var(--color-success))" }}>
-                                        ${expense.amount.toFixed(2)}
-                                    </div>
-                                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                                        (${perPerson.toFixed(2)} / {splitCount})
-                                    </div>
-                                </div>
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteExpense(expense.id, expense.description);
-                                    }}
-                                    title={t('common.delete')}
-                                    style={{ padding: "0.5rem", color: "hsl(var(--color-danger))" }}
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                            <div style={{
+                                fontSize: "0.95rem",
+                                fontWeight: "600",
+                                color: "hsl(var(--color-primary))"
+                            }}>
+                                ${totalAmount.toFixed(2)}
                             </div>
                         </div>
-                    );
-                })}
+
+                        {/* Expenses List */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                            {dailyExpenses.map(expense => {
+                                const payerName = getMemberName(expense.payerUid);
+                                const splitCount = expense.involvedUids?.length || 1;
+                                const perPerson = expense.amount / splitCount;
+
+                                return (
+                                    <div
+                                        key={expense.id}
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            padding: "0.75rem",
+                                            background: "rgba(255, 255, 255, 0.03)",
+                                            borderRadius: "8px",
+                                            border: "1px solid var(--glass-border)",
+                                            cursor: "pointer",
+                                            transition: "all 0.2s ease"
+                                        }}
+                                        onClick={() => setEditingExpense(expense)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+                                            e.currentTarget.style.borderColor = "hsl(var(--color-primary) / 0.3)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                                            e.currentTarget.style.borderColor = "var(--glass-border)";
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1 }}>
+                                            <div style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                minWidth: "50px",
+                                                padding: "0.25rem 0.5rem",
+                                                background: "rgba(139, 92, 246, 0.1)",
+                                                borderRadius: "6px",
+                                                border: "1px solid rgba(139, 92, 246, 0.2)",
+                                                fontSize: "0.8rem",
+                                                color: "var(--text-secondary)"
+                                            }}>
+                                                {expense.timestamp?.toDate ?
+                                                    expense.timestamp.toDate().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+                                                    : '--:--'}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <h4 style={{ fontSize: "1rem", margin: "0 0 0.25rem 0" }}>{expense.description}</h4>
+                                                <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: 0 }}>
+                                                    <span style={{ color: "hsl(var(--color-primary))" }}>
+                                                        {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
+                                                    </span>
+                                                    {' • '}
+                                                    {t('group.paidBy')} <strong>{payerName}</strong>
+                                                    {' • '}
+                                                    <span style={{ color: "var(--text-muted)" }}>
+                                                        ${perPerson.toFixed(2)} / {splitCount}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                            <div style={{
+                                                fontSize: "1.05rem",
+                                                fontWeight: "bold",
+                                                color: "hsl(var(--color-success))",
+                                                minWidth: "80px",
+                                                textAlign: "right"
+                                            }}>
+                                                ${expense.amount.toFixed(2)}
+                                            </div>
+                                            <button
+                                                className="btn btn-secondary"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteExpense(expense.id, expense.description);
+                                                }}
+                                                title={t('common.delete')}
+                                                style={{
+                                                    padding: "0.5rem",
+                                                    color: "hsl(var(--color-danger))",
+                                                    minWidth: "auto"
+                                                }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))}
                 {expenses.length === 0 && (
                     <p style={{ textAlign: "center", color: "var(--text-muted)", marginTop: "2rem" }}>{t('group.noExpensesRecorded')}</p>
                 )}

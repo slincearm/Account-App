@@ -87,22 +87,20 @@
     "addExpense": "Add Expense",
     "updateExpense": "Update Expense",
     "categories": {
-      "Breakfast": "Breakfast",
-      "Lunch": "Lunch",
-      "Dinner": "Dinner",
-      "Travel": "Travel",
-      "DiningOut": "Dining Out",
-      "Groceries": "Groceries",
-      "Electricity": "Electricity",
-      "Gas": "Gas",
-      "Internet": "Internet",
-      "Miscellaneous": "Miscellaneous",
-      "food": "Food & Dining",
-      "transport": "Transportation",
+      "food": "Food",
+      "clothing": "Clothing",
+      "housing": "Housing",
+      "transportation": "Transportation",
+      "education": "Education",
       "entertainment": "Entertainment",
-      "shopping": "Shopping",
-      "utilities": "Utilities",
-      "other": "Other"
+      "miscellaneous": "Miscellaneous"
+    },
+    "mealTimes": {
+      "breakfast": "Breakfast",
+      "brunch": "Brunch",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
     }
   },
   "settlement": {

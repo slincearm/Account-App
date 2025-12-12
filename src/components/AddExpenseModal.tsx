@@ -4,7 +4,24 @@ import { useAuth } from "../contexts/AuthContext";
 import { Member, Expense } from "../types";
 import { useTranslation } from "react-i18next";
 
-const PREDEFINED_CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Travel", "DiningOut", "Groceries", "Electricity", "Gas", "Internet", "Miscellaneous"];
+const PREDEFINED_CATEGORIES = ["food", "clothing", "housing", "transportation", "education", "entertainment", "miscellaneous"];
+
+// Helper function to get meal description based on time
+const getMealDescriptionByTime = (date: Date, t: any): string => {
+    const hour = date.getHours();
+
+    if (hour >= 6 && hour < 10) {
+        return t('expense.mealTimes.breakfast');
+    } else if (hour >= 10 && hour < 11) {
+        return t('expense.mealTimes.brunch');
+    } else if (hour >= 11 && hour < 14) {
+        return t('expense.mealTimes.lunch');
+    } else if (hour >= 17 && hour < 21) {
+        return t('expense.mealTimes.dinner');
+    } else {
+        return t('expense.mealTimes.snack');
+    }
+};
 
 interface AddExpenseModalProps {
     groupId: string;
@@ -21,7 +38,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
     const isEditMode = !!editingExpense;
     const [description, setDescription] = useState<string>(editingExpense?.description || "");
     const [amount, setAmount] = useState<string>(editingExpense?.amount.toString() || "");
-    const [category, setCategory] = useState<string>(editingExpense?.category || "Breakfast");
+    const [category, setCategory] = useState<string>(editingExpense?.category || "food");
     const [customCategory, setCustomCategory] = useState<string>("");
     const [isCustomCategory, setIsCustomCategory] = useState<boolean>(editingExpense ? !PREDEFINED_CATEGORIES.includes(editingExpense.category) : false);
 
@@ -64,11 +81,17 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
 
         try {
             const finalCategory = isCustomCategory ? customCategory : category;
-            // Use translated category name as default description if description is empty
-            const translatedCategoryName = isCustomCategory
-                ? customCategory
-                : t(`expense.categories.${category}`);
-            const finalDescription = description.trim() === "" ? translatedCategoryName : description;
+            // Determine default description
+            let defaultDescription: string;
+            if (isCustomCategory) {
+                defaultDescription = customCategory;
+            } else if (category === 'food' && description.trim() === '') {
+                // For food category with empty description, use meal time
+                defaultDescription = getMealDescriptionByTime(new Date(date), t);
+            } else {
+                defaultDescription = t(`expense.categories.${category}`);
+            }
+            const finalDescription = description.trim() === "" ? defaultDescription : description;
 
             const expenseData = {
                 description: finalDescription,
@@ -200,7 +223,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                             className="input"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
-                            placeholder={`${t('expense.descriptionDefaultsTo')} "${isCustomCategory ? (customCategory || t('expense.category')) : t(`expense.categories.${category}`)}"`}
+                            placeholder={`${t('expense.descriptionDefaultsTo')} "${isCustomCategory ? (customCategory || t('expense.category')) : (category === 'food' ? getMealDescriptionByTime(new Date(date), t) : t(`expense.categories.${category}`))}"`}
                         />
                     </div>
 
