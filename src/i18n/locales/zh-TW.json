@@ -33,7 +33,8 @@
     "members": "成員",
     "settle": "結算",
     "history": "歷史記錄",
-    "confirmDelete": "確定要刪除帳本 '{{name}}' 嗎？所有費用記錄將被永久刪除。"
+    "confirmDelete": "確定要刪除帳本 '{{name}}' 嗎？所有費用記錄將被永久刪除。",
+    "temporary": "短期"
   },
   "group": {
     "details": "帳本詳情",
@@ -48,6 +49,7 @@
     "paidBy": "由",
     "split": "分攤於",
     "confirmDeleteExpense": "確定要刪除費用 '{{description}}' 嗎？",
+    "temporary": "短期帳本",
     "spendingByCategory": "各類別支出",
     "balanceSummary": "收支明細",
     "paid": "已支付",
@@ -129,12 +131,20 @@
     "groupName": "帳本名稱",
     "groupNamePlaceholder": "輸入帳本名稱",
     "create": "建立帳本",
+    "groupType": "帳本類型",
+    "regularGroup": "一般帳本",
+    "temporaryGroup": "短期帳本",
+    "temporaryGroupDescription": "適用於旅遊或臨時活動，可新增未認證的臨時成員",
     "addMember": "新增成員",
     "selectUser": "選擇要新增的使用者",
     "add": "新增成員",
     "alreadyMember": "已經是成員",
     "loadingUsers": "載入使用者中...",
-    "noOtherUsers": "沒有其他可新增的使用者。"
+    "noOtherUsers": "沒有其他可新增的使用者。",
+    "temporaryMemberDescription": "新增臨時成員（無需系統帳號）",
+    "temporaryMemberName": "成員名稱",
+    "temporaryMemberNamePlaceholder": "輸入成員名稱",
+    "enterTemporaryName": "請輸入成員名稱"
   },
   "admin": {
     "title": "管理者面板",

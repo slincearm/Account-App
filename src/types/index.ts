@@ -26,8 +26,16 @@ export interface Group {
   createdByUid: string;
   members: string[];
   status: 'active' | 'settled';
+  isTemporary?: boolean;
+  temporaryMembers?: TemporaryMember[];
   createdAt: Timestamp;
   settledAt?: Timestamp;
+}
+
+// Temporary member type for temporary groups
+export interface TemporaryMember {
+  id: string;
+  displayName: string;
 }
 
 // Expense types
@@ -66,6 +74,7 @@ export interface Member {
   displayName: string;
   photoURL: string;
   email: string;
+  isTemporary?: boolean;
 }
 
 // Auth Context types
@@ -97,7 +106,7 @@ export interface UseGroupsReturn {
   activeGroups: Group[];
   settledGroups: Group[];
   loading: boolean;
-  createGroup: (name: string) => Promise<void>;
+  createGroup: (name: string, isTemporary?: boolean) => Promise<void>;
   deleteGroup: (groupId: string) => Promise<void>;
 }
 
@@ -126,7 +135,7 @@ export interface ModalProps {
 }
 
 export interface CreateGroupModalProps extends ModalProps {
-  onCreate: (name: string) => Promise<void>;
+  onCreate: (name: string, isTemporary?: boolean) => Promise<void>;
 }
 
 export interface AddMemberModalProps extends ModalProps {

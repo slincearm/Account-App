@@ -6,6 +6,7 @@ import { CreateGroupModalProps } from "../types";
 function CreateGroupModal({ onClose, onCreate }: CreateGroupModalProps) {
     const defaultDate = new Date().toISOString().split('T')[0] || '';
     const [name, setName] = useState<string>(defaultDate);
+    const [isTemporary, setIsTemporary] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const { t } = useTranslation();
 
@@ -13,7 +14,7 @@ function CreateGroupModal({ onClose, onCreate }: CreateGroupModalProps) {
         e.preventDefault();
         setLoading(true);
         try {
-            await onCreate(name);
+            await onCreate(name, isTemporary);
             onClose();
         } catch (error) {
             console.error("Failed to create group", error);
@@ -70,6 +71,64 @@ function CreateGroupModal({ onClose, onCreate }: CreateGroupModalProps) {
                             onChange={(e) => setName(e.target.value)}
                             placeholder={t('modal.groupNamePlaceholder')}
                         />
+                    </div>
+
+                    <div style={{ marginBottom: "1.5rem" }}>
+                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
+                            {t('modal.groupType')}
+                        </label>
+                        <div style={{ display: "flex", gap: "1rem" }}>
+                            <label style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "0.5rem", 
+                                cursor: "pointer",
+                                padding: "0.75rem 1rem",
+                                border: `2px solid ${!isTemporary ? 'hsl(var(--color-primary))' : 'var(--glass-border)'}`,
+                                borderRadius: "8px",
+                                background: !isTemporary ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                flex: 1
+                            }}>
+                                <input
+                                    type="radio"
+                                    name="groupType"
+                                    checked={!isTemporary}
+                                    onChange={() => setIsTemporary(false)}
+                                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                                />
+                                <span style={{ fontSize: "0.9rem" }}>{t('modal.regularGroup')}</span>
+                            </label>
+                            <label style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "0.5rem", 
+                                cursor: "pointer",
+                                padding: "0.75rem 1rem",
+                                border: `2px solid ${isTemporary ? 'hsl(var(--color-primary))' : 'var(--glass-border)'}`,
+                                borderRadius: "8px",
+                                background: isTemporary ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                flex: 1
+                            }}>
+                                <input
+                                    type="radio"
+                                    name="groupType"
+                                    checked={isTemporary}
+                                    onChange={() => setIsTemporary(true)}
+                                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                                />
+                                <span style={{ fontSize: "0.9rem" }}>{t('modal.temporaryGroup')}</span>
+                            </label>
+                        </div>
+                        {isTemporary && (
+                            <p style={{ 
+                                marginTop: "0.5rem", 
+                                fontSize: "0.8rem", 
+                                color: "var(--text-muted)",
+                                fontStyle: "italic"
+                            }}>
+                                {t('modal.temporaryGroupDescription')}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex-center" style={{ gap: "1rem" }}>

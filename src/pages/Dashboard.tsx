@@ -74,7 +74,21 @@ export default function Dashboard() {
                                             <Users size={24} />
                                         </div>
                                         <div>
-                                            <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>{group.name}</h3>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                                                <h3 style={{ fontSize: "1.1rem", margin: 0 }}>{group.name}</h3>
+                                                {group.isTemporary && (
+                                                    <span style={{
+                                                        fontSize: "0.7rem",
+                                                        color: "hsl(var(--color-primary))",
+                                                        padding: "0.2rem 0.5rem",
+                                                        background: "rgba(139, 92, 246, 0.15)",
+                                                        borderRadius: "4px",
+                                                        fontWeight: 600
+                                                    }}>
+                                                        {t('dashboard.temporary')}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                                                 {group.members?.length} {t('dashboard.members')}
                                             </p>

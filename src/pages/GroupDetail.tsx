@@ -17,7 +17,7 @@ export default function GroupDetail() {
 
     if (!groupId) return <div className="container text-center mt-10">{t('group.invalidGroupId')}</div>;
 
-    const { group, members, addMember, loading: groupLoading } = useGroup(groupId);
+    const { group, members, addMember, addTemporaryMember, loading: groupLoading } = useGroup(groupId);
     const { expenses, addExpense, deleteExpense, updateExpense, loading: expensesLoading } = useExpenses(groupId);
 
     const [showAddExpense, setShowAddExpense] = useState(false);
@@ -190,8 +190,20 @@ export default function GroupDetail() {
                 <div className="flex-center" style={{ gap: "1rem" }}>
                     <Link to="/" style={{ color: "var(--text-secondary)" }}><ArrowLeft /></Link>
                     <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                             <h1 className="text-gradient" style={{ fontSize: "1.75rem", margin: 0 }}>{group.name}</h1>
+                            {group.isTemporary && (
+                                <span style={{
+                                    fontSize: "0.75rem",
+                                    color: "hsl(var(--color-primary))",
+                                    padding: "0.3rem 0.6rem",
+                                    background: "rgba(139, 92, 246, 0.15)",
+                                    borderRadius: "6px",
+                                    fontWeight: 600
+                                }}>
+                                    {t('group.temporary')}
+                                </span>
+                            )}
                             <span style={{
                                 fontSize: "0.85rem",
                                 color: "var(--text-muted)",
@@ -535,12 +547,22 @@ export default function GroupDetail() {
                 <AddMemberModal
                     currentMemberIds={group.members}
                     onClose={() => setShowAddMember(false)}
+                    isTemporary={group.isTemporary}
                     onAdd={async (uid) => {
                         try {
                             await addMember(uid);
                             setShowAddMember(false);
                         } catch (error) {
                             console.error("Failed to add member:", error);
+                            alert(t('errors.addMemberFailed'));
+                        }
+                    }}
+                    onAddTemporary={async (name) => {
+                        try {
+                            await addTemporaryMember(name);
+                            setShowAddMember(false);
+                        } catch (error) {
+                            console.error("Failed to add temporary member:", error);
                             alert(t('errors.addMemberFailed'));
                         }
                     }}

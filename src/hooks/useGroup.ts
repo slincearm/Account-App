@@ -3,7 +3,7 @@ import { doc, onSnapshot, updateDoc, arrayUnion, collection, getDocs, query, whe
 import { db } from "../lib/firebase";
 import { Group, Member, UseGroupReturn } from "../types";
 
-export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: string) => Promise<void> } {
+export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: string) => Promise<void>; addTemporaryMember: (name: string) => Promise<void> } {
     const [group, setGroup] = useState<Group | null>(null);
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -14,25 +14,35 @@ export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: s
         const unsubscribe = onSnapshot(doc(db, "groups", groupId), async (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                setGroup({ id: docSnap.id, ...data } as Group);
+                const groupData = { id: docSnap.id, ...data } as Group;
+                setGroup(groupData);
 
                 // Fetch member details
+                const memberList: Member[] = [];
+
+                // Fetch regular members
                 if (data.members && data.members.length > 0) {
-                    // Firestore 'in' query supports up to 10 items.
-                    // If more, we need to batch or fetch individually.
-                    // For MVP assume small groups < 10.
                     if (data.members.length <= 10) {
                         const q = query(collection(db, "users"), where("uid", "in", data.members));
                         const memberSnaps = await getDocs(q);
-                        const memberList = memberSnaps.docs.map(d => d.data() as Member);
-                        setMembers(memberList);
-                    } else {
-                        // Fallback: fetch all or individually (not implemented for MVP)
-                        // Just fetching creators/others separately?
-                        // Let's just limit to 10 for now logic.
-                        setMembers([]);
+                        memberList.push(...memberSnaps.docs.map(d => d.data() as Member));
                     }
                 }
+
+                // Add temporary members if this is a temporary group
+                if (groupData.isTemporary && groupData.temporaryMembers) {
+                    groupData.temporaryMembers.forEach(tempMember => {
+                        memberList.push({
+                            uid: tempMember.id,
+                            displayName: tempMember.displayName,
+                            photoURL: '',
+                            email: '',
+                            isTemporary: true
+                        });
+                    });
+                }
+
+                setMembers(memberList);
             } else {
                 setGroup(null);
                 setMembers([]);
@@ -58,5 +68,22 @@ export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: s
         }
     };
 
-    return { group, members, loading, addMember };
+    const addTemporaryMember = async (name: string): Promise<void> => {
+        try {
+            const tempMember = {
+                id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                displayName: name
+            };
+
+            await updateDoc(doc(db, "groups", groupId), {
+                temporaryMembers: arrayUnion(tempMember)
+            });
+        } catch (err) {
+            console.error("Failed to add temporary member:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to add temporary member: ${errorMessage}`);
+        }
+    };
+
+    return { group, members, loading, addMember, addTemporaryMember };
 }

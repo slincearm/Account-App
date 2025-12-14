@@ -46,7 +46,7 @@ export function useGroups(): UseGroupsReturn {
         return unsubscribe;
     }, [currentUser]);
 
-    const createGroup = async (name: string): Promise<void> => {
+    const createGroup = async (name: string, isTemporary: boolean = false): Promise<void> => {
         if (!currentUser) return;
 
         // Default name if empty is current date YYYY-MM-DD (Handled by caller or here)
@@ -57,17 +57,10 @@ export function useGroups(): UseGroupsReturn {
                 name: groupName,
                 createdByName: currentUser.displayName,
                 createdByUid: currentUser.uid,
-                members: [currentUser.uid], // Currently only creator starts in group, others added later? or select logic?
-                // Requirement 2b: "Display members only".
-                // Requirement 4a: "Select fields... share with users".
-                // implies we might select users per expense, BUT standard logic is group has members.
-                // For now, assume creator is sole member initially unless we add "Add Member to Group" feature.
-                // Actually, requirement 2b says "the user joined accounting groups".
-                // I'll stick to creator-only initially or maybe add logic to invite.
-                // Wait, prompt 4a says "choose users to split". This implies users are ALREADY in the group.
-                // I will add a way to add users to group later, or maybe ALL approved users are available to add?
-                // Let's assume for MVP all approved users can be added to a group.
+                members: [currentUser.uid],
                 status: 'active',
+                isTemporary: isTemporary,
+                temporaryMembers: isTemporary ? [] : undefined,
                 createdAt: serverTimestamp()
             });
         } catch (err) {
