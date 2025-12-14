@@ -141,10 +141,12 @@
     "alreadyMember": "Already a member",
     "loadingUsers": "Loading users...",
     "noOtherUsers": "No other users available to add.",
-    "temporaryMemberDescription": "Add temporary member (no system account required)",
+    "temporaryMemberDescription": "Or add temporary member (no system account required)",
     "temporaryMemberName": "Member Name",
     "temporaryMemberNamePlaceholder": "Enter member name",
-    "enterTemporaryName": "Please enter member name"
+    "enterTemporaryName": "Please enter member name",
+    "addAuthenticatedUser": "Add Authenticated User",
+    "addTemporaryMember": "Add Temporary Member"
   },
   "admin": {
     "title": "Admin Panel",

@@ -141,10 +141,12 @@
     "alreadyMember": "已經是成員",
     "loadingUsers": "載入使用者中...",
     "noOtherUsers": "沒有其他可新增的使用者。",
-    "temporaryMemberDescription": "新增臨時成員（無需系統帳號）",
+    "temporaryMemberDescription": "或新增臨時成員（無需系統帳號）",
     "temporaryMemberName": "成員名稱",
     "temporaryMemberNamePlaceholder": "輸入成員名稱",
-    "enterTemporaryName": "請輸入成員名稱"
+    "enterTemporaryName": "請輸入成員名稱",
+    "addAuthenticatedUser": "新增認證使用者",
+    "addTemporaryMember": "新增臨時成員"
   },
   "admin": {
     "title": "管理者面板",

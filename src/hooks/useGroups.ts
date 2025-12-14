@@ -53,16 +53,22 @@ export function useGroups(): UseGroupsReturn {
         const groupName = name || new Date().toISOString().split('T')[0];
 
         try {
-            await addDoc(collection(db, "groups"), {
+            const groupData: any = {
                 name: groupName,
                 createdByName: currentUser.displayName,
                 createdByUid: currentUser.uid,
                 members: [currentUser.uid],
                 status: 'active',
-                isTemporary: isTemporary,
-                temporaryMembers: isTemporary ? [] : undefined,
                 createdAt: serverTimestamp()
-            });
+            };
+
+            // Only add temporary group fields if it's a temporary group
+            if (isTemporary) {
+                groupData.isTemporary = true;
+                groupData.temporaryMembers = [];
+            }
+
+            await addDoc(collection(db, "groups"), groupData);
         } catch (err) {
             console.error("Error creating group:", err);
             const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';

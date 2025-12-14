@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cd functions && npm install",
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "clean": "powershell -Command \"$folders = @('dist', 'coverage', 'node_modules/.vite', '.firebase', '.cache'); foreach ($folder in $folders) { if (Test-Path $folder) { Remove-Item -Recurse -Force $folder; Write-Host \\\"Removed: $folder\\\" -ForegroundColor Yellow } }; Write-Host 'Cleaned all generated files successfully!' -ForegroundColor Green\"",
+    "postinstall": "cd functions && npm install",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
