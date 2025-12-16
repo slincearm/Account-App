@@ -54,8 +54,26 @@
     ```
 
 2.  **Firebase 設定**：
+    -   複製 `.env.example` 檔案並重新命名為 `.env`：
+        ```bash
+        cp .env.example .env
+        ```
+    -   前往 [Firebase Console](https://console.firebase.google.com/)
+    -   選擇您的 Firebase 專案
+    -   點擊專案設定（齒輪圖示）→ 您的應用程式
+    -   複製 Firebase 配置資訊並填入 `.env` 檔案中
+    -   `.env` 檔案範例：
+        ```env
+        VITE_FIREBASE_API_KEY=your_api_key_here
+        VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+        VITE_FIREBASE_PROJECT_ID=your_project_id
+        VITE_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+        VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+        VITE_FIREBASE_APP_ID=your_app_id
+        VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+        ```
+    -   **重要**：請勿將 `.env` 檔案提交到版本控制系統中（已在 `.gitignore` 中排除）
     -   請確保您已設定 `.firebaserc` 和 `firebase.json` 檔案。
-    -   如果是建立全新的專案，請更新 `src/lib/firebase.js` 中的 Firebase 專案金鑰。
 
 3.  **管理者設定**：
     -   在 Firebase Firestore 中建立 `admin` collection

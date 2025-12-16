@@ -9,7 +9,41 @@ import AddExpenseModal from "../components/AddExpenseModal";
 import AddMemberModal from "../components/AddMemberModal";
 import { useTranslation } from "react-i18next";
 
-const COLORS = ['#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#6366f1'];
+const PREDEFINED_CATEGORIES = ["food", "clothing", "housing", "transportation", "education", "entertainment", "miscellaneous"];
+
+// Category color mapping - must match index.css definitions
+const CATEGORY_COLORS: Record<string, string> = {
+    food: '#10b981',        // Green
+    clothing: '#ec4899',    // Pink
+    housing: '#3b82f6',     // Blue
+    transportation: '#f59e0b', // Amber
+    education: '#8b5cf6',   // Purple
+    entertainment: '#06b6d4', // Cyan
+    miscellaneous: '#6366f1', // Indigo
+    custom: '#64748b'       // Slate
+};
+
+// Category icons
+const CATEGORY_ICONS: Record<string, string> = {
+    food: '🍔',
+    clothing: '👕',
+    housing: '🏠',
+    transportation: '🚗',
+    education: '📚',
+    entertainment: '🎮',
+    miscellaneous: '📦'
+};
+
+const getCategoryColor = (category: string): string => {
+    return CATEGORY_COLORS[category] || CATEGORY_COLORS.custom!;
+};
+
+const getCategoryIcon = (category: string): string => {
+    return CATEGORY_ICONS[category] || '⚙️';
+};
+
+// Category order for consistent display
+const CATEGORY_ORDER = ['food', 'clothing', 'housing', 'transportation', 'education', 'entertainment', 'miscellaneous'];
 
 export default function GroupDetail() {
     const { groupId } = useParams();
@@ -122,7 +156,22 @@ export default function GroupDetail() {
             const cat = e.category || 'uncategorized';
             data[cat] = (data[cat] || 0) + Number(e.amount);
         });
-        return Object.keys(data).map(key => ({
+
+        // Sort by predefined category order
+        const sortedKeys = Object.keys(data).sort((a, b) => {
+            const indexA = CATEGORY_ORDER.indexOf(a);
+            const indexB = CATEGORY_ORDER.indexOf(b);
+
+            // If both are in predefined categories, sort by order
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            // Predefined categories come first
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            // Custom categories sorted alphabetically
+            return a.localeCompare(b);
+        });
+
+        return sortedKeys.map(key => ({
             name: key === 'uncategorized' ? t('group.uncategorized') : t(`expense.categories.${key}`, { defaultValue: key }),
             value: data[key],
             categoryKey: key // Keep original category key for filtering
@@ -257,9 +306,9 @@ export default function GroupDetail() {
                             <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                                 {/* Category List */}
                                 <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                                    {chartData.map((entry, index) => (
+                                    {chartData.map((entry) => (
                                         <div
-                                            key={entry.name}
+                                            key={entry.categoryKey}
                                             style={{
                                                 display: "flex",
                                                 alignItems: "center",
@@ -279,14 +328,23 @@ export default function GroupDetail() {
                                             }}
                                         >
                                             <div style={{
-                                                width: "12px",
-                                                height: "12px",
-                                                borderRadius: "2px",
-                                                background: COLORS[index % COLORS.length]
-                                            }} />
+                                                fontSize: "1.2rem",
+                                                lineHeight: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center"
+                                            }}>
+                                                {getCategoryIcon(entry.categoryKey)}
+                                            </div>
                                             <div style={{ fontSize: "0.8rem" }}>
-                                                <div style={{ color: "var(--text-primary)", fontWeight: "500" }}>{entry.name}</div>
-                                                <div style={{ color: "hsl(var(--color-primary))", fontWeight: "600" }}>
+                                                <div style={{
+                                                    color: `var(--category-${entry.categoryKey})`,
+                                                    fontWeight: "600"
+                                                }}>{entry.name}</div>
+                                                <div style={{
+                                                    color: getCategoryColor(entry.categoryKey),
+                                                    fontWeight: "600"
+                                                }}>
                                                     ${(entry.value || 0).toFixed(2)}
                                                 </div>
                                             </div>
@@ -307,8 +365,8 @@ export default function GroupDetail() {
                                                 paddingAngle={5}
                                                 dataKey="value"
                                             >
-                                                {chartData.map((_entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                {chartData.map((entry) => (
+                                                    <Cell key={`cell-${entry.categoryKey}`} fill={getCategoryColor(entry.categoryKey)} />
                                                 ))}
                                             </Pie>
                                             <Tooltip
@@ -316,11 +374,56 @@ export default function GroupDetail() {
                                                     background: "rgba(255, 255, 255, 0.95)",
                                                     border: "1px solid var(--glass-border)",
                                                     borderRadius: "8px",
-                                                    color: "#1a1512",
-                                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                                    padding: "8px 12px"
                                                 }}
-                                                formatter={(value, name) => [`$${Number(value).toFixed(2)}`, name]}
-                                                labelStyle={{ color: "#1a1512", fontWeight: "600", marginBottom: "4px" }}
+                                                formatter={(value, name) => {
+                                                    return [
+                                                        `$${Number(value).toFixed(2)}`,
+                                                        name
+                                                    ];
+                                                }}
+                                                itemStyle={{
+                                                    color: "inherit",
+                                                    fontWeight: "600"
+                                                }}
+                                                labelStyle={{
+                                                    fontWeight: "600",
+                                                    marginBottom: "4px"
+                                                }}
+                                                content={({ active, payload }) => {
+                                                    if (active && payload && payload.length) {
+                                                        const data = payload[0];
+                                                        const categoryKey = data.payload.categoryKey;
+                                                        const color = getCategoryColor(categoryKey);
+
+                                                        return (
+                                                            <div style={{
+                                                                background: "rgba(255, 255, 255, 0.95)",
+                                                                border: "1px solid rgba(0, 0, 0, 0.1)",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                                                padding: "8px 12px"
+                                                            }}>
+                                                                <div style={{
+                                                                    color,
+                                                                    fontWeight: "600",
+                                                                    marginBottom: "4px"
+                                                                }}>
+                                                                    {data.name}
+                                                                </div>
+                                                                <div style={{
+                                                                    color,
+                                                                    fontWeight: "600",
+                                                                    fontSize: "1.1em"
+                                                                }}>
+                                                                    ${Number(data.value).toFixed(2)}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }}
                                             />
                                         </PieChart>
                                     </ResponsiveContainer>
@@ -474,7 +577,12 @@ export default function GroupDetail() {
                                             <div style={{ flex: 1 }}>
                                                 <h4 style={{ fontSize: "1rem", margin: "0 0 0.25rem 0" }}>{expense.description}</h4>
                                                 <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: 0 }}>
-                                                    <span style={{ color: "hsl(var(--color-primary))" }}>
+                                                    <span style={{
+                                                        color: PREDEFINED_CATEGORIES.includes(expense.category)
+                                                            ? `var(--category-${expense.category})`
+                                                            : 'var(--category-custom)',
+                                                        fontWeight: "600"
+                                                    }}>
                                                         {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
                                                     </span>
                                                     {' • '}

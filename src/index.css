@@ -25,6 +25,16 @@
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
+
+  /* Category Colors - High Contrast for both themes */
+  --category-food: #10b981;        /* Green */
+  --category-clothing: #ec4899;    /* Pink */
+  --category-housing: #3b82f6;     /* Blue */
+  --category-transportation: #f59e0b; /* Amber */
+  --category-education: #8b5cf6;   /* Purple */
+  --category-entertainment: #06b6d4; /* Cyan */
+  --category-miscellaneous: #6366f1; /* Indigo */
+  --category-custom: #64748b;      /* Slate */
 }
 
 /* Light Theme - Warm Off-White */
@@ -181,6 +191,28 @@ button {
   outline: none;
   border-color: hsl(var(--color-primary));
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* Remove number input spinner/wheel */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Dark mode: High contrast date/time inputs */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="time"] {
+  color-scheme: light;
 }
 
 select.input {
