@@ -297,7 +297,7 @@ export default function GroupDetail() {
                             {t('group.totalSpending')}
                         </div>
                         <div style={{ fontSize: "1.75rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
-                            ${totalSpending.toFixed(2)}
+                            ${totalSpending.toFixed(0)}
                         </div>
                     </div>
 
@@ -345,7 +345,7 @@ export default function GroupDetail() {
                                                     color: getCategoryColor(entry.categoryKey),
                                                     fontWeight: "600"
                                                 }}>
-                                                    ${(entry.value || 0).toFixed(2)}
+                                                    ${(entry.value || 0).toFixed(0)}
                                                 </div>
                                             </div>
                                         </div>
@@ -360,12 +360,33 @@ export default function GroupDetail() {
                                                 data={chartData}
                                                 cx="50%"
                                                 cy="50%"
-                                                innerRadius={50}
-                                                outerRadius={70}
+                                                innerRadius={35}
+                                                outerRadius={50}
                                                 paddingAngle={5}
                                                 dataKey="value"
-                                                label={({ name, percent }) => {
-                                                    return `${name} ${((percent || 0) * 100).toFixed(1)}%`;
+                                                label={(props) => {
+                                                    const { cx, cy, midAngle, outerRadius, name, percent, payload } = props;
+                                                    const RADIAN = Math.PI / 180;
+                                                    const radius = (outerRadius || 50) + 25;
+                                                    const angle = midAngle || 0;
+                                                    const x = (cx || 0) + radius * Math.cos(-angle * RADIAN);
+                                                    const y = (cy || 0) + radius * Math.sin(-angle * RADIAN);
+                                                    const percentage = ((percent || 0) * 100).toFixed(1);
+                                                    const color = getCategoryColor(payload?.categoryKey || '');
+
+                                                    return (
+                                                        <text
+                                                            x={x}
+                                                            y={y}
+                                                            fill={color}
+                                                            textAnchor={x > cx ? 'start' : 'end'}
+                                                            dominantBaseline="central"
+                                                            fontSize="11px"
+                                                        >
+                                                            <tspan x={x} dy="-0.5em">{name}</tspan>
+                                                            <tspan x={x} dy="1.2em">{percentage}%</tspan>
+                                                        </text>
+                                                    );
                                                 }}
                                                 labelLine={{
                                                     stroke: 'var(--text-secondary)',
@@ -379,7 +400,7 @@ export default function GroupDetail() {
                                                     value={`${expenses.length}`}
                                                     position="center"
                                                     style={{
-                                                        fontSize: '32px',
+                                                        fontSize: '28px',
                                                         fontWeight: 'bold',
                                                         fill: 'var(--text-primary)'
                                                     }}
@@ -387,9 +408,9 @@ export default function GroupDetail() {
                                                 <Label
                                                     value={t('group.expenseCount')}
                                                     position="center"
-                                                    dy={25}
+                                                    dy={22}
                                                     style={{
-                                                        fontSize: '12px',
+                                                        fontSize: '10px',
                                                         fill: 'var(--text-secondary)'
                                                     }}
                                                 />
@@ -418,7 +439,7 @@ export default function GroupDetail() {
                                             <div>
                                                 <span style={{ fontWeight: "500" }}>{b.name}</span>
                                                 <span style={{ color: "var(--text-muted)", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
-                                                    {t('group.paid')}: ${b.paid.toFixed(2)}
+                                                    {t('group.paid')}: ${b.paid.toFixed(0)}
                                                 </span>
                                             </div>
                                             <div style={{
@@ -427,8 +448,8 @@ export default function GroupDetail() {
                                                        b.balance < -0.01 ? "hsl(var(--color-danger))" :
                                                        "var(--text-muted)"
                                             }}>
-                                                {b.balance > 0.01 ? `+$${b.balance.toFixed(2)}` :
-                                                 b.balance < -0.01 ? `-$${Math.abs(b.balance).toFixed(2)}` :
+                                                {b.balance > 0.01 ? `+$${b.balance.toFixed(0)}` :
+                                                 b.balance < -0.01 ? `-$${Math.abs(b.balance).toFixed(0)}` :
                                                  t('group.settled')}
                                             </div>
                                         </div>
@@ -491,7 +512,7 @@ export default function GroupDetail() {
                                 fontWeight: "600",
                                 color: "hsl(var(--color-primary))"
                             }}>
-                                ${totalAmount.toFixed(2)}
+                                ${totalAmount.toFixed(0)}
                             </div>
                         </div>
 
@@ -558,7 +579,7 @@ export default function GroupDetail() {
                                                     {t('group.paidBy')} <strong>{payerName}</strong>
                                                     {' • '}
                                                     <span style={{ color: "var(--text-muted)" }}>
-                                                        ${perPerson.toFixed(2)} / {splitCount}
+                                                        ${perPerson.toFixed(1)} / {splitCount}
                                                     </span>
                                                 </p>
                                             </div>
@@ -571,7 +592,7 @@ export default function GroupDetail() {
                                                 minWidth: "80px",
                                                 textAlign: "right"
                                             }}>
-                                                ${expense.amount.toFixed(2)}
+                                                ${expense.amount.toFixed(0)}
                                             </div>
                                             <button
                                                 className="btn btn-secondary"
@@ -698,7 +719,7 @@ export default function GroupDetail() {
                                 {t('group.totalSpending')}
                             </div>
                             <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
-                                ${categoryExpenses.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                                ${categoryExpenses.reduce((sum, e) => sum + e.amount, 0).toFixed(0)}
                             </div>
                             <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
                                 {categoryExpenses.length} {categoryExpenses.length === 1 ? t('group.expenses').slice(0, -1) : t('group.expenses')}
@@ -756,7 +777,7 @@ export default function GroupDetail() {
                                                     {t('group.paidBy')} <strong>{payerName}</strong>
                                                     {' • '}
                                                     <span style={{ color: "var(--text-muted)" }}>
-                                                        ${perPerson.toFixed(2)} / {splitCount}
+                                                        ${perPerson.toFixed(1)} / {splitCount}
                                                     </span>
                                                 </p>
                                             </div>
@@ -767,7 +788,7 @@ export default function GroupDetail() {
                                                 minWidth: "80px",
                                                 textAlign: "right"
                                             }}>
-                                                ${expense.amount.toFixed(2)}
+                                                ${expense.amount.toFixed(1)}
                                             </div>
                                         </div>
                                     </div>
