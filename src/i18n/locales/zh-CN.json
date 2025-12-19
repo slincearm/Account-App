@@ -60,7 +60,8 @@
     "loadingDetails": "加载详情中...",
     "groupNotFound": "找不到群组",
     "unknown": "未知",
-    "uncategorized": "未分类"
+    "uncategorized": "未分类",
+    "expenseCount": "笔消费明细"
   },
   "expense": {
     "add": "添加费用",

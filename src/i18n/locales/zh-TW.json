@@ -60,7 +60,8 @@
     "loadingDetails": "載入詳情中...",
     "groupNotFound": "找不到帳本",
     "unknown": "未知",
-    "uncategorized": "未分類"
+    "uncategorized": "未分類",
+    "expenseCount": "筆消費明細"
   },
   "expense": {
     "add": "新增費用",

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Label } from "recharts";
 import { Plus, UserPlus, ArrowLeft, Calendar, Trash2, X } from "lucide-react";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
@@ -364,67 +364,36 @@ export default function GroupDetail() {
                                                 outerRadius={70}
                                                 paddingAngle={5}
                                                 dataKey="value"
+                                                label={({ name, percent }) => {
+                                                    return `${name} ${((percent || 0) * 100).toFixed(1)}%`;
+                                                }}
+                                                labelLine={{
+                                                    stroke: 'var(--text-secondary)',
+                                                    strokeWidth: 1
+                                                }}
                                             >
                                                 {chartData.map((entry) => (
                                                     <Cell key={`cell-${entry.categoryKey}`} fill={getCategoryColor(entry.categoryKey)} />
                                                 ))}
+                                                <Label
+                                                    value={`${expenses.length}`}
+                                                    position="center"
+                                                    style={{
+                                                        fontSize: '32px',
+                                                        fontWeight: 'bold',
+                                                        fill: 'var(--text-primary)'
+                                                    }}
+                                                />
+                                                <Label
+                                                    value={t('group.expenseCount')}
+                                                    position="center"
+                                                    dy={25}
+                                                    style={{
+                                                        fontSize: '12px',
+                                                        fill: 'var(--text-secondary)'
+                                                    }}
+                                                />
                                             </Pie>
-                                            <Tooltip
-                                                contentStyle={{
-                                                    background: "rgba(255, 255, 255, 0.95)",
-                                                    border: "1px solid var(--glass-border)",
-                                                    borderRadius: "8px",
-                                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                                    padding: "8px 12px"
-                                                }}
-                                                formatter={(value, name) => {
-                                                    return [
-                                                        `$${Number(value).toFixed(2)}`,
-                                                        name
-                                                    ];
-                                                }}
-                                                itemStyle={{
-                                                    color: "inherit",
-                                                    fontWeight: "600"
-                                                }}
-                                                labelStyle={{
-                                                    fontWeight: "600",
-                                                    marginBottom: "4px"
-                                                }}
-                                                content={({ active, payload }) => {
-                                                    if (active && payload && payload.length) {
-                                                        const data = payload[0];
-                                                        const categoryKey = data.payload.categoryKey;
-                                                        const color = getCategoryColor(categoryKey);
-
-                                                        return (
-                                                            <div style={{
-                                                                background: "rgba(255, 255, 255, 0.95)",
-                                                                border: "1px solid rgba(0, 0, 0, 0.1)",
-                                                                borderRadius: "8px",
-                                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                                                padding: "8px 12px"
-                                                            }}>
-                                                                <div style={{
-                                                                    color,
-                                                                    fontWeight: "600",
-                                                                    marginBottom: "4px"
-                                                                }}>
-                                                                    {data.name}
-                                                                </div>
-                                                                <div style={{
-                                                                    color,
-                                                                    fontWeight: "600",
-                                                                    fontSize: "1.1em"
-                                                                }}>
-                                                                    ${Number(data.value).toFixed(2)}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    }
-                                                    return null;
-                                                }}
-                                            />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>

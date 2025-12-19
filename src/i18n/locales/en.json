@@ -60,7 +60,8 @@
     "loadingDetails": "Loading details...",
     "groupNotFound": "Group not found",
     "unknown": "Unknown",
-    "uncategorized": "Uncategorized"
+    "uncategorized": "Uncategorized",
+    "expenseCount": "expense records"
   },
   "expense": {
     "add": "Add New Expense",
