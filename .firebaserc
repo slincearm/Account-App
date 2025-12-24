@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "accounting-app-a4487"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

@@ -1,5 +1,24 @@
 # 更新日誌
 
+## [2024-12-24] - Firebase 配置完整更新
+
+### CI/CD 配置修正
+- 更新 GitHub Actions workflow 的 Firebase Service Account secret 名稱
+  - 從 `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP_30D42` 更正為 `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP_A4487`
+  - 確保與實際 GitHub Secrets 設定一致
+- 更新 `.firebaserc` 格式
+  - 新增 `targets` 和 `etags` 欄位，符合最新 Firebase CLI 規範
+  - 移除檔案末尾換行，標準化格式
+- 影響檔案：
+  - `.firebaserc`
+  - `.github/workflows/firebase-hosting-merge.yml`
+  - `.github/workflows/firebase-hosting-pull-request.yml`
+
+### 說明
+此次更新確保 CI/CD 自動部署流程能正確使用 GitHub Secrets 中的 Firebase Service Account 憑證，並與 Firebase 專案 `accounting-app-a4487` 正確連接。
+
+---
+
 ## [2024-12-24] - GitHub Actions 配置修正
 
 ### CI/CD 修正
