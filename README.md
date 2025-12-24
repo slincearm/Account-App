@@ -112,6 +112,8 @@ npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
 
 ## 建置與部署
 
+### 手動部署
+
 1.  **建置專案**：
     將 React 應用程式編譯至 `dist` 資料夾。
     ```bash
@@ -135,6 +137,57 @@ npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
     firebase deploy --only hosting   # 只部署網頁應用程式
     firebase deploy --only firestore # 只部署資料庫規則/索引
     ```
+
+### GitHub Actions 自動部署
+
+本專案已配置 GitHub Actions 工作流程，可在以下情況自動部署：
+
+#### 工作流程
+
+1.  **Pull Request 預覽部署** (`firebase-hosting-pull-request.yml`)
+    -   觸發時機：當 Pull Request 建立或更新時
+    -   行為：自動建置並部署至 Firebase Hosting 預覽頻道
+    -   部署結果會以留言形式出現在 PR 中
+
+2.  **正式環境部署** (`firebase-hosting-merge.yml`)
+    -   觸發時機：當程式碼合併至 `main` 分支時
+    -   行為：自動建置並部署至 Firebase Hosting 正式環境 (live channel)
+
+#### GitHub Secrets 設定
+
+為了讓 GitHub Actions 正常運作，需要在 GitHub Repository Settings 中設定以下 Secrets：
+
+1.  前往 GitHub Repository → Settings → Secrets and variables → Actions
+2.  新增以下 Secrets：
+
+**Firebase 相關 Secrets：**
+-   `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP` - Firebase 服務帳戶金鑰
+    -   取得方式：Firebase Console → 專案設定 → 服務帳戶 → 產生新的私密金鑰
+    -   將整個 JSON 檔案內容貼上
+-   `FIREBASE_PROJECT_ID` - Firebase 專案 ID（例如：`accounting-app-a4487`）
+
+**Firebase 配置 Secrets（建置時需要）：**
+-   `VITE_FIREBASE_API_KEY` - Firebase API 金鑰
+-   `VITE_FIREBASE_AUTH_DOMAIN` - Firebase Auth 網域
+-   `VITE_FIREBASE_PROJECT_ID` - Firebase 專案 ID
+-   `VITE_FIREBASE_STORAGE_BUCKET` - Firebase Storage Bucket
+-   `VITE_FIREBASE_MESSAGING_SENDER_ID` - Firebase Messaging Sender ID
+-   `VITE_FIREBASE_APP_ID` - Firebase App ID
+-   `VITE_FIREBASE_MEASUREMENT_ID` - Firebase Measurement ID（可選）
+
+> **注意**：`GITHUB_TOKEN` 由 GitHub Actions 自動提供，無需手動設定。
+
+#### 工作流程檔案
+
+工作流程檔案位於 `.github/workflows/` 目錄：
+-   `firebase-hosting-pull-request.yml` - PR 預覽部署
+-   `firebase-hosting-merge.yml` - 正式環境部署
+
+這些檔案會自動執行以下步驟：
+1.  檢出程式碼（`actions/checkout@v4`）
+2.  安裝依賴並建置（`npm ci && npm run build`）
+3.  使用環境變數注入 Firebase 配置
+4.  部署至 Firebase Hosting（`FirebaseExtended/action-hosting-deploy@v0`）
 
 ## 專案結構
 
@@ -174,3 +227,54 @@ npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
     -   自動認證 `isApproved: true`
     -   顯示「管理者」徽章
     -   啟用管理者面板存取權限
+## 常見問題排解
+
+### Firebase 部署錯誤
+
+**問題：** `Permission denied on resource project`
+
+**原因：** 通常是因為 Firebase 專案 ID 不匹配或服務帳戶權限不足
+
+**解決方案：**
+1.  檢查 `.firebaserc` 檔案中的專案 ID 是否正確
+    ```json
+    {
+      "projects": {
+        "default": "accounting-app-a4487"  // 確認這是正確的專案 ID
+      }
+    }
+    ```
+
+2.  確認您已在 Firebase Console 中啟用相關 API：
+    -   Firebase Hosting API
+    -   Cloud Firestore API
+    -   Firebase Extensions API（如果使用）
+
+3.  重新驗證 Firebase CLI：
+    ```bash
+    firebase logout
+    firebase login
+    ```
+
+4.  對於 GitHub Actions 部署錯誤：
+    -   確認 `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP` Secret 已正確設定
+    -   確認服務帳戶具有足夠的權限（建議使用 Editor 角色）
+    -   檢查 `FIREBASE_PROJECT_ID` 是否與 `.firebaserc` 中的專案 ID 一致
+
+### GitHub Actions 建置失敗
+
+**問題：** `VITE_FIREBASE_* environment variables not found`
+
+**解決方案：**
+1.  確認已在 GitHub Repository Settings → Secrets 中設定所有必要的環境變數
+2.  檢查 Secret 名稱是否完全符合（區分大小寫）
+3.  確認所有 7 個 Firebase 配置 Secrets 都已設定
+
+### 本地開發問題
+
+**問題：** 無法連接到 Firebase
+
+**解決方案：**
+1.  檢查 `.env` 檔案是否存在且包含所有必要的配置
+2.  確認沒有意外將 `.env` 檔案提交到 Git（檢查 `.gitignore`）
+3.  重新啟動開發伺服器 `npm run dev`

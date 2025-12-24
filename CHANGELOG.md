@@ -1,5 +1,63 @@
 # 更新日誌
 
+## [2024-12-25] - GitHub Actions 建置環境變數配置
+
+### CI/CD 配置完善
+- **新增建置所需的 Firebase 環境變數**
+  - 在兩個 workflow 檔案中的 `npm ci && npm run build` 步驟新增環境變數注入
+  - 支援 Vite 建置時正確載入 Firebase 配置
+- **新增的環境變數**：
+  ```yaml
+  env: 
+    VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+    VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+    VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+    VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+    VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+    VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+    VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+  ```
+- 影響檔案：
+  - `.github/workflows/firebase-hosting-merge.yml`
+  - `.github/workflows/firebase-hosting-pull-request.yml`
+
+### 文件更新
+- **README.md 新增 GitHub Actions 配置章節**
+  - 詳細說明 PR 預覽部署與正式環境部署的工作流程
+  - 新增 GitHub Secrets 完整設定指南（共 9 個必要 Secrets）
+  - 說明工作流程自動執行的步驟
+- **新增常見問題排解章節**
+  - Firebase 部署權限錯誤的診斷與解決方案
+  - GitHub Actions 建置失敗的除錯指引
+  - 本地開發環境設定問題處理
+- **專案 ID 確認**
+  - 當前正確的 Firebase 專案 ID：`accounting-app-a4487`
+  - `.firebaserc` 檔案已正確配置
+
+### 必要的 GitHub Secrets 設定
+需要在 GitHub Repository Settings → Secrets and variables → Actions 中設定：
+
+**Firebase 部署相關：**
+1. `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP` - Firebase 服務帳戶 JSON 金鑰
+2. `FIREBASE_PROJECT_ID` - Firebase 專案 ID
+
+**Firebase 配置（建置時需要）：**
+3. `VITE_FIREBASE_API_KEY`
+4. `VITE_FIREBASE_AUTH_DOMAIN`
+5. `VITE_FIREBASE_PROJECT_ID`
+6. `VITE_FIREBASE_STORAGE_BUCKET`
+7. `VITE_FIREBASE_MESSAGING_SENDER_ID`
+8. `VITE_FIREBASE_APP_ID`
+9. `VITE_FIREBASE_MEASUREMENT_ID`
+
+### 說明
+此次更新解決了 GitHub Actions 建置時無法正確讀取 Firebase 配置的問題。由於 Vite 建置時需要 `VITE_*` 環境變數，而這些變數在 CI/CD 環境中需要從 GitHub Secrets 注入。更新後的工作流程能夠：
+1. 在建置步驟正確注入所有 Firebase 配置
+2. 生成可正常運作的生產版本
+3. 成功部署至 Firebase Hosting
+
+---
+
 ## [2024-12-24] - GitHub Actions 配置優化為環境變數
 
 ### CI/CD 配置改進
