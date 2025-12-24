@@ -1,5 +1,17 @@
 # 更新日誌
 
+## [2024-12-24] - GitHub Actions 配置修正
+
+### CI/CD 修正
+- 修正 GitHub Actions workflow 中的 Firebase Project ID
+- 將錯誤的 `accounting-app-30d42` 更正為正確的 `accounting-app-a4487`
+- 影響檔案：
+  - `.github/workflows/firebase-hosting-merge.yml`
+  - `.github/workflows/firebase-hosting-pull-request.yml`
+- 確保自動部署流程能正確連接到 Firebase 專案
+
+---
+
 ## [2024-12-24] - 完善國際化與使用者篩選功能
 
 ### 新增功能

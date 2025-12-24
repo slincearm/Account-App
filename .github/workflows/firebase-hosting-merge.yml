@@ -17,4 +17,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP_30D42 }}
           channelId: live
-          projectId: accounting-app-30d42
+          projectId: accounting-app-a4487
