@@ -1,5 +1,73 @@
 # 更新日誌
 
+## [2024-12-24] - 完善國際化與使用者篩選功能
+
+### 新增功能
+
+#### 使用者費用篩選
+- 在收支明細區塊點擊使用者名稱可篩選該使用者支付的帳目
+- 選中的使用者會以紫色高亮顯示，提供視覺反饋
+- 帳目列表上方顯示篩選指示器，標示當前篩選的使用者
+- 支援點擊清除按鈕或再次點擊使用者名稱取消篩選
+- 費用列表即時更新，只顯示該使用者支付的項目
+
+### 國際化改進
+
+#### 組件國際化覆蓋
+- **LanguageSwitcher**: 按鈕 title 改用 `t('common.changeLanguage')`
+- **ThemeSwitcher**: 主題切換按鈕改用 `t('common.switchToLight')` / `t('common.switchToDark')`
+- **ProtectedRoute**: Loading 文字改用 `t('common.loading')`
+- **App.tsx Suspense**: 新增 LoadingFallback 組件使用 i18n
+
+#### 歷史記錄頁面國際化
+- 完整國際化 HistoryDetail 頁面所有文字
+- 圓餅圖樣式統一為與 GroupDetail 相同的設計
+- 支援類別名稱、圖表標籤、中心數據等完整翻譯
+
+#### 語言自動檢測增強
+- 優先使用 localStorage 中保存的語言設定
+- 迭代 `navigator.languages` 數組尋找最佳匹配
+- 智能映射中文變體：zh-TW/zh-HK → 繁體中文，其他 zh → 簡體中文
+- 最終回退至英文 ('en')
+
+#### 新增翻譯鍵
+三個 locale 文件 (en.json, zh-TW.json, zh-CN.json) 新增：
+- `common.noData`: 暫無資料提示
+- `common.switchToDark` / `common.switchToLight`: 主題切換提示
+- `common.changeLanguage`: 語言切換提示
+- `common.rootNotFound`: 根元素錯誤提示
+- `history.summaryTitle`: 已結算帳本彙總標題
+- `history.settledPayments`: 已結清付款標題
+- `history.noPaymentsNeeded`: 無需付款提示
+- `history.spendingBreakdown`: 支出明細標題
+- `group.receivable` / `group.payable`: 應收/應付標籤
+
+#### 術語統一
+- 繁體中文語言名稱從「繁體中文」改為「正體中文」
+- 收支明細顯示改進：從 `+$100` / `-$50` 改為「應收 $100」/「應付 $50」
+
+### 技術改進
+
+#### TypeScript 錯誤修復
+- 修復 HistoryDetail 中 `getCategoryColor` 的型別錯誤
+- 移除未使用的 `categoryExpenses` 變數避免編譯警告
+- 確保 build 流程無錯誤通過
+
+### 修改的檔案
+- `src/App.tsx`: 新增 LoadingFallback 組件
+- `src/components/LanguageSwitcher.tsx`: 國際化 title
+- `src/components/ThemeSwitcher.tsx`: 國際化主題切換文字
+- `src/components/ProtectedRoute.tsx`: 國際化 Loading 文字
+- `src/contexts/LanguageContext.tsx`: 語言名稱從「繁體中文」改為「正體中文」
+- `src/i18n/config.ts`: 增強語言自動檢測邏輯
+- `src/i18n/locales/en.json`: 新增多個翻譯鍵
+- `src/i18n/locales/zh-CN.json`: 新增多個翻譯鍵
+- `src/i18n/locales/zh-TW.json`: 新增多個翻譯鍵
+- `src/pages/GroupDetail.tsx`: 新增使用者篩選功能，改進收支明細顯示
+- `src/pages/HistoryDetail.tsx`: 完整國際化並統一圓餅圖設計
+
+---
+
 ## [2024-12-12] - Firebase API 更新與 UI 增強
 
 ### 技術改進

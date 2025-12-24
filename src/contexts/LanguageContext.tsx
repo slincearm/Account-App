@@ -32,7 +32,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
   const languages: Language[] = [
     { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "zh-TW", name: "繁體中文", flag: "🇹🇼" },
+    { code: "zh-TW", name: "正體中文", flag: "🇹🇼" },
     { code: "zh-CN", name: "简体中文", flag: "🇨🇳" }
   ];
 

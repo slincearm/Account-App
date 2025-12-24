@@ -1,7 +1,12 @@
 {
   "common": {
     "loading": "載入中...",
+    "noData": "暫無資料",
+    "switchToDark": "切換至深色模式",
+    "switchToLight": "切換至淺色模式",
+    "rootNotFound": "找不到根元素",
     "cancel": "取消",
+    "changeLanguage": "切換語言",
     "confirm": "確認",
     "save": "儲存",
     "delete": "刪除",
@@ -53,6 +58,8 @@
     "spendingByCategory": "各類別支出",
     "balanceSummary": "收支明細",
     "paid": "已支付",
+    "receivable": "應收",
+    "payable": "應付",
     "settled": "已結清",
     "today": "今日",
     "members": "成員",
@@ -125,6 +132,10 @@
     "settledOn": "結算於",
     "viewDetails": "查看詳情",
     "settled": "已結算",
+    "summaryTitle": "已結算帳本彙總",
+    "settledPayments": "已結清的付款",
+    "noPaymentsNeeded": "不需要任何付款。",
+    "spendingBreakdown": "支出明細",
     "confirmDelete": "確定要刪除已結算帳本「{{name}}」嗎？所有資料將被永久刪除。"
   },
   "modal": {

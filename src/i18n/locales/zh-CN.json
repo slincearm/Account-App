@@ -1,7 +1,12 @@
 {
   "common": {
     "loading": "加载中...",
+    "noData": "暂无数据",
+    "switchToDark": "切换至深色模式",
+    "switchToLight": "切换至浅色模式",
+    "rootNotFound": "找不到根元素",
     "cancel": "取消",
+    "changeLanguage": "切换语言",
     "confirm": "确认",
     "save": "保存",
     "delete": "删除",
@@ -53,6 +58,8 @@
     "spendingByCategory": "各类别支出",
     "balanceSummary": "收支明细",
     "paid": "已支付",
+    "receivable": "应收",
+    "payable": "应付",
     "settled": "已结清",
     "today": "今日",
     "members": "成员",
@@ -125,6 +132,10 @@
     "settledOn": "结算于",
     "viewDetails": "查看详情",
     "settled": "已结算",
+    "summaryTitle": "已结算群组汇总",
+    "settledPayments": "已结清的付款",
+    "noPaymentsNeeded": "不需要任何付款。",
+    "spendingBreakdown": "支出明细",
     "confirmDelete": "确定要删除已结算群组“{{name}}”吗？所有数据将被永久删除。"
   },
   "modal": {

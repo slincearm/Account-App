@@ -1,7 +1,12 @@
 {
   "common": {
     "loading": "Loading...",
+    "noData": "No data",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "rootNotFound": "Root element not found",
     "cancel": "Cancel",
+    "changeLanguage": "Change language",
     "confirm": "Confirm",
     "save": "Save",
     "delete": "Delete",
@@ -53,6 +58,8 @@
     "spendingByCategory": "Spending by Category",
     "balanceSummary": "Balance Summary",
     "paid": "Paid",
+    "receivable": "Receivable",
+    "payable": "Payable",
     "settled": "Settled",
     "today": "Today",
     "members": "Members",
@@ -125,6 +132,10 @@
     "settledOn": "Settled on",
     "viewDetails": "View Details",
     "settled": "Settled",
+    "summaryTitle": "Settled Group Summary",
+    "settledPayments": "Settled Payments",
+    "noPaymentsNeeded": "No payments were needed.",
+    "spendingBreakdown": "Spending Breakdown",
     "confirmDelete": "Are you sure you want to delete settled group '{{name}}'? All data will be permanently deleted."
   },
   "modal": {

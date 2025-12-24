@@ -58,6 +58,7 @@ export default function GroupDetail() {
     const [showAddMember, setShowAddMember] = useState(false);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedMember, setSelectedMember] = useState<string | null>(null);
 
     const handleDeleteExpense = async (expenseId: string, description: string): Promise<void> => {
         if (!window.confirm(t('group.confirmDeleteExpense', { description }))) return;
@@ -194,7 +195,12 @@ export default function GroupDetail() {
     const expensesByDate = useMemo(() => {
         const grouped: Record<string, typeof expenses> = {};
 
-        expenses.forEach(expense => {
+        // Filter expenses by selected member if active
+        const filteredExpenses = selectedMember
+            ? expenses.filter(e => e.payerUid === selectedMember)
+            : expenses;
+
+        filteredExpenses.forEach(expense => {
             if (!expense.timestamp?.toDate) return;
 
             const date = expense.timestamp.toDate();
@@ -228,7 +234,7 @@ export default function GroupDetail() {
                 }),
                 totalAmount: exps.reduce((sum, e) => sum + e.amount, 0)
             }));
-    }, [expenses]);
+    }, [expenses, selectedMember]);
 
     if (groupLoading || expensesLoading) return <div className="container text-center mt-10">{t('group.loadingDetails')}</div>;
     if (!group) return <div className="container text-center mt-10">{t('group.groupNotFound')}</div>;
@@ -433,11 +439,25 @@ export default function GroupDetail() {
                                             alignItems: "center",
                                             fontSize: "0.85rem",
                                             padding: "0.5rem",
-                                            background: "rgba(255, 255, 255, 0.03)",
-                                            borderRadius: "6px"
+                                            background: selectedMember === b.uid ? "rgba(139, 92, 246, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                                            borderRadius: "6px",
+                                            cursor: "pointer",
+                                            transition: "all 0.2s ease",
+                                            border: selectedMember === b.uid ? "1px solid rgba(139, 92, 246, 0.3)" : "1px solid transparent"
+                                        }}
+                                        onClick={() => setSelectedMember(selectedMember === b.uid ? null : b.uid)}
+                                        onMouseEnter={(e) => {
+                                            if (selectedMember !== b.uid) {
+                                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedMember !== b.uid) {
+                                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                                            }
                                         }}>
                                             <div>
-                                                <span style={{ fontWeight: "500" }}>{b.name}</span>
+                                                <span style={{ fontWeight: "500", color: selectedMember === b.uid ? "hsl(var(--color-primary))" : "var(--text-primary)" }}>{b.name}</span>
                                                 <span style={{ color: "var(--text-muted)", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
                                                     {t('group.paid')}: ${b.paid.toFixed(0)}
                                                 </span>
@@ -448,8 +468,8 @@ export default function GroupDetail() {
                                                        b.balance < -0.01 ? "hsl(var(--color-danger))" :
                                                        "var(--text-muted)"
                                             }}>
-                                                {b.balance > 0.01 ? `+$${b.balance.toFixed(0)}` :
-                                                 b.balance < -0.01 ? `-$${Math.abs(b.balance).toFixed(0)}` :
+                                                {b.balance > 0.01 ? `${t('group.receivable')} $${b.balance.toFixed(0)}` :
+                                                 b.balance < -0.01 ? `${t('group.payable')} $${Math.abs(b.balance).toFixed(0)}` :
                                                  t('group.settled')}
                                             </div>
                                         </div>
@@ -490,6 +510,50 @@ export default function GroupDetail() {
                     <Plus size={18} /> {t('group.addItem')}
                 </button>
             </div>
+
+            {/* Filter Banner */}
+            {selectedMember && (
+                <div style={{
+                    marginBottom: "1rem",
+                    padding: "0.75rem 1rem",
+                    background: "rgba(139, 92, 246, 0.1)",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(139, 92, 246, 0.3)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+                            {t('group.paidBy')}: <strong style={{ color: "hsl(var(--color-primary))" }}>{getMemberName(selectedMember)}</strong>
+                        </span>
+                    </div>
+                    <button
+                        onClick={() => setSelectedMember(null)}
+                        style={{
+                            background: "none",
+                            border: "none",
+                            color: "hsl(var(--color-primary))",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.25rem",
+                            fontSize: "0.85rem",
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "4px",
+                            transition: "background 0.2s ease"
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "none";
+                        }}
+                    >
+                        <X size={16} /> {t('common.cancel')}
+                    </button>
+                </div>
+            )}
 
             <div style={{ display: "grid", gap: "1rem" }}>
                 {expensesByDate.map(({ date, expenses: dailyExpenses, totalAmount }) => (

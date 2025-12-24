@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, memo } from "react";
 import { Globe } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 function LanguageSwitcher() {
   const { currentLanguage, changeLanguage, languages } = useLanguage();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +38,7 @@ function LanguageSwitcher() {
           gap: "0.5rem",
           fontSize: "0.9rem"
         }}
-        title="Change Language"
+        title={t('common.changeLanguage')}
       >
         <Globe size={18} />
         <span className="hide-mobile">

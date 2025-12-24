@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { NetworkProvider } from "./contexts/NetworkContext";
@@ -17,6 +18,16 @@ const HistoryDetail = lazy(() => import("./pages/HistoryDetail"));
 const Settlement = lazy(() => import("./pages/Settlement"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 
+// Suspense fallback component with i18n support
+function LoadingFallback() {
+  const { t } = useTranslation();
+  return (
+    <div className="container text-center mt-10" style={{ color: "var(--text-secondary)" }}>
+      {t('common.loading')}
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <NetworkProvider>
@@ -24,11 +35,7 @@ export default function App() {
         <AuthProvider>
           <BrowserRouter>
             <NetworkStatus />
-            <Suspense fallback={
-              <div className="container text-center mt-10" style={{ color: "var(--text-secondary)" }}>
-                Loading...
-              </div>
-            }>
+            <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/pending" element={<Pending />} />
