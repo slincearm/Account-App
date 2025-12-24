@@ -15,6 +15,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP_A4487 }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP }}
           channelId: live
-          projectId: accounting-app-a4487
+          projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'

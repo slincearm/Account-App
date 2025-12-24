@@ -1,5 +1,31 @@
 # 更新日誌
 
+## [2024-12-24] - GitHub Actions 配置優化為環境變數
+
+### CI/CD 配置改進
+- **使用環境變數取代硬編碼值**，提升配置的靈活性與安全性
+- **Service Account Secret 簡化**：
+  - 從 `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP_A4487` 簡化為 `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP`
+  - 使用更通用的命名，方便未來維護
+- **Project ID 參數化**：
+  - 從硬編碼 `accounting-app-a4487` 改為使用 `${{ secrets.FIREBASE_PROJECT_ID }}`
+  - 專案 ID 現在透過 GitHub Secrets 管理，提高安全性
+- 影響檔案：
+  - `.github/workflows/firebase-hosting-merge.yml`
+  - `.github/workflows/firebase-hosting-pull-request.yml`
+
+### 優點
+1. **安全性提升**：敏感資訊（Project ID）不再直接寫在程式碼中
+2. **維護性改善**：修改專案配置只需更新 GitHub Secrets，無需修改程式碼
+3. **可擴展性**：相同的 workflow 可輕鬆套用到其他 Firebase 專案
+
+### 設定說明
+需要在 GitHub Repository Settings > Secrets and variables > Actions 中設定：
+- `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP`: Firebase Service Account JSON
+- `FIREBASE_PROJECT_ID`: Firebase Project ID (如：accounting-app-a4487)
+
+---
+
 ## [2024-12-24] - Firebase 配置完整更新
 
 ### CI/CD 配置修正
