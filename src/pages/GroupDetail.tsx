@@ -107,19 +107,6 @@ export default function GroupDetail() {
         return `${formatDate(earliestExpense)} - ${t('group.today')}`;
     }, [expenses, t]);
 
-    // Format group creation date for display
-    const groupCreatedDate = useMemo(() => {
-        if (!group) return '';
-        const createdDate = group.createdAt.toDate();
-        const locale = t('common.locale', { defaultValue: 'zh-TW' });
-
-        if (locale === 'en') {
-            return createdDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        } else {
-            return createdDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
-        }
-    }, [group, t]);
-
     // Calculate who paid and who owes
     const balances = useMemo(() => {
         const paid: Record<string, number> = {};
