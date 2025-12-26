@@ -18,7 +18,7 @@
   - `useState` 管理成員卡片展開狀態
   - `useState` 管理支出分類卡片展開狀態
   - 條件渲染內容根據展開/收合狀態動態調整
-  
+
 - **優化組件結構**
   - 重構支出分類卡片 UI 邏輯
   - 改進了代碼的可讀性和可維護性
@@ -35,7 +35,7 @@
   - 支援 Vite 建置時正確載入 Firebase 配置
 - **新增的環境變數**：
   ```yaml
-  env: 
+  env:
     VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
     VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
     VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}

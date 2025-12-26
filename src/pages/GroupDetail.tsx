@@ -260,16 +260,6 @@ export default function GroupDetail() {
                                     {t('group.temporary')}
                                 </span>
                             )}
-                            <span style={{
-                                fontSize: "0.85rem",
-                                color: "var(--text-muted)",
-                                padding: "0.25rem 0.75rem",
-                                background: "rgba(139, 92, 246, 0.1)",
-                                borderRadius: "6px",
-                                border: "1px solid rgba(139, 92, 246, 0.2)"
-                            }}>
-                                {groupCreatedDate}
-                            </span>
                         </div>
                         <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", margin: "0.25rem 0 0 0" }}>
                             {members.length} {t('group.members')}

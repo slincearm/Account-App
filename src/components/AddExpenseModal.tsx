@@ -165,7 +165,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                     {/* Date and Time */}
                     <div style={{ marginBottom: "1rem" }}>
                         <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.time')}</label>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+                        <div style={{ display: "grid", width: "100%", gridTemplateColumns: "1fr 1fr", gap: "2rem", paddingRight: "1.5rem" }}>
                             <input
                                 type="date"
                                 className="input"
