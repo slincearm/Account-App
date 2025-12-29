@@ -6,6 +6,18 @@ import { useTranslation } from "react-i18next";
 
 const PREDEFINED_CATEGORIES = ["food", "clothing", "housing", "transportation", "education", "entertainment", "miscellaneous"];
 
+const CURRENCIES = ["TWD", "JPY", "CNY", "USD", "KRW", "EUR"];
+
+
+// Helper to format date as YYYY-MM-DD HH:MM:SS
+const formatLastUpdated = (date: Date): string => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+
+
+
+
 // Helper function to get meal description based on time
 const getMealDescriptionByTime = (date: Date, t: any): string => {
     const hour = date.getHours();
@@ -32,7 +44,7 @@ interface AddExpenseModalProps {
     onUpdate?: (expenseId: string, expense: Partial<Omit<Expense, 'id'>>) => Promise<void>;
 }
 
-function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdate }: Omit<AddExpenseModalProps, 'groupId'> & {groupId?: string}) {
+function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdate }: Omit<AddExpenseModalProps, 'groupId'> & { groupId?: string }) {
     const { currentUser } = useAuth();
     const { t } = useTranslation();
     const isEditMode = !!editingExpense;
@@ -41,6 +53,75 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
     const [category, setCategory] = useState<string>(editingExpense?.category || "food");
     const [customCategory, setCustomCategory] = useState<string>("");
     const [isCustomCategory, setIsCustomCategory] = useState<boolean>(editingExpense ? !PREDEFINED_CATEGORIES.includes(editingExpense.category) : false);
+    const [currency, setCurrency] = useState<string>("TWD");
+    const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({ TWD: 1 });
+    const [lastUpdated, setLastUpdated] = useState<string>("");
+
+    useEffect(() => {
+        const fetchRates = async () => {
+            const STORAGE_KEY = 'currency_rates';
+            const today = new Date().toISOString().split('T')[0];
+            const cachedData = localStorage.getItem(STORAGE_KEY);
+
+            let ratesToUse: Record<string, number> = { TWD: 1 };
+            let updateTime = "";
+
+            if (cachedData) {
+                try {
+                    const parsed = JSON.parse(cachedData);
+                    if (parsed.date === today) {
+                        setExchangeRates(parsed.rates);
+                        setLastUpdated(parsed.lastUpdated);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Error parsing cached rates", e);
+                }
+            }
+
+            try {
+                const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/twd.json');
+                const data = await response.json();
+
+                // API returns 1 TWD = X Foreign Currency
+                // We map them to our uppercase keys
+                ratesToUse = {
+                    TWD: 1,
+                    JPY: data.twd.jpy,
+                    CNY: data.twd.cny,
+                    USD: data.twd.usd,
+                    KRW: data.twd.krw,
+                    EUR: data.twd.eur
+                };
+
+                updateTime = formatLastUpdated(new Date());
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    date: today,
+                    rates: ratesToUse,
+                    lastUpdated: updateTime
+                }));
+
+                setExchangeRates(ratesToUse);
+                setLastUpdated(updateTime);
+
+            } catch (error) {
+                console.error("Failed to fetch rates", error);
+                // Fallback or keep minimal defaults if needed, but for now we expect fetch to work
+                // If fetch fails, we might depend on existing state or show error.
+            }
+        };
+
+        fetchRates();
+    }, []);
+
+    const convertToTWD = (amount: number, curr: string): number => {
+        if (curr === 'TWD' || !exchangeRates[curr]) return amount;
+        // Since API gives "1 TWD = X Foreign", then "Foreign / X = TWD"
+        return amount / exchangeRates[curr];
+    };
+
+
 
     // Helper function to format date to local datetime-local format
     const formatLocalDateTime = (date: Date): string => {
@@ -93,10 +174,16 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
             }
             const finalDescription = description.trim() === "" ? defaultDescription : description;
 
+            // Calculate amount in TWD
+            const amountInTWD = convertToTWD(parseFloat(amount), currency);
+
+
+
             const expenseData = {
                 description: finalDescription,
-                amount: parseFloat(amount),
+                amount: amountInTWD,
                 category: finalCategory as any,
+
                 payerUid,
                 involvedUids,
                 timestamp: new Date(date) as any
@@ -234,22 +321,79 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                         />
                     </div>
 
-                    {/* Amount */}
+
+
+                    {/* Currency */}
                     <div style={{ marginBottom: "1rem" }}>
-                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.amount')}</label>
-                        <input
-                            type="number"
-                            className="input"
-                            value={amount}
-                            onChange={e => setAmount(e.target.value)}
-                            step="0.01"
-                            min="0"
-                            required
-                            placeholder={t('expense.amountPlaceholder')}
-                        />
+                        <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
+                            {t('expense.currency')}
+                            {lastUpdated && (
+                                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "0.5rem", fontWeight: 400 }}>
+                                    ({t('expense.updatedAt') || 'Updated'}: {lastUpdated})
+                                </span>
+                            )}
+                        </label>
+                        <div className="flex-center" style={{ gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-start" }}>
+                            <select
+                                className="input"
+                                value={currency}
+                                onChange={e => setCurrency(e.target.value)}
+                                style={{ width: "100%" }}
+                            >
+                                {CURRENCIES.map(curr => (
+                                    <option key={curr} value={curr}>
+                                        {t(`expense.currencies.${curr}`)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
-                    {/* Users Selection */}
+                    {/* Amount */}
+                    <div style={{ marginBottom: "1rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: currency === 'TWD' ? "1fr" : "1fr 1fr", gap: "1rem" }}>
+                            {/* Left Column: Input */}
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
+                                    {t('expense.amount')}
+                                    {currency !== 'TWD' && exchangeRates[currency] && (
+                                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "0.5rem", fontWeight: 400 }}>
+                                            (1 {currency} ≈ {(1 / exchangeRates[currency]).toLocaleString(undefined, { maximumFractionDigits: 2 })} TWD)
+                                        </span>
+                                    )}
+                                </label>
+
+                                <input
+                                    type="number"
+                                    className="input"
+                                    value={amount}
+                                    onChange={e => setAmount(e.target.value)}
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                    placeholder={t('expense.amountPlaceholder')}
+                                />
+                            </div>
+
+                            {/* Right Column: Converted TWD (Only if not TWD) */}
+                            {currency !== 'TWD' && (
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
+                                        TWD
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="input"
+                                        style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-muted)", cursor: "not-allowed" }}
+                                        value={amount ? convertToTWD(parseFloat(amount), currency).toLocaleString(undefined, { maximumFractionDigits: 0 }) : ''}
+                                        readOnly
+                                        disabled
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "var(--glass-bg)", borderRadius: "var(--radius-md)", border: "1px solid var(--glass-border)" }}>
                         <div style={{ marginBottom: "1rem" }}>
                             <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>{t('expense.whoPaid')}</label>
@@ -304,8 +448,8 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
 

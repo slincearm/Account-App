@@ -111,6 +111,16 @@
       "lunch": "午餐",
       "dinner": "晚餐",
       "snack": "點心"
+    },
+    "currency": "幣別",
+    "updatedAt": "最後更新",
+    "currencies": {
+      "TWD": "台幣 (TWD)",
+      "JPY": "日幣 (JPY)",
+      "CNY": "人民幣 (CNY)",
+      "USD": "美金 (USD)",
+      "KRW": "韓幣 (KRW)",
+      "EUR": "歐元 (EUR)"
     }
   },
   "settlement": {

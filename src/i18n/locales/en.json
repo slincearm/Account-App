@@ -111,6 +111,16 @@
       "lunch": "Lunch",
       "dinner": "Dinner",
       "snack": "Snack"
+    },
+    "currency": "Currency",
+    "updatedAt": "Last Updated",
+    "currencies": {
+      "TWD": "TWD (NT$)",
+      "JPY": "JPY (¥)",
+      "CNY": "CNY (¥)",
+      "USD": "USD ($)",
+      "KRW": "KRW (₩)",
+      "EUR": "EUR (€)"
     }
   },
   "settlement": {
