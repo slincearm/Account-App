@@ -51,7 +51,7 @@
     "noExpensesRecorded": "No expenses recorded yet.",
     "startTracking": "Start tracking your group expenses",
     "totalSpending": "Total Spending",
-    "paidBy": "Paid by",
+    "paidBy": "By",
     "split": "Split among",
     "confirmDeleteExpense": "Are you sure you want to delete expense '{{description}}'?",
     "temporary": "Temporary Group",

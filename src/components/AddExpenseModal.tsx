@@ -9,6 +9,19 @@ const PREDEFINED_CATEGORIES = ["food", "clothing", "housing", "transportation", 
 const CURRENCIES = ["TWD", "JPY", "CNY", "USD", "KRW", "EUR"];
 
 
+
+const getCurrencyPrecision = (curr: string): number => {
+    switch (curr) {
+        case 'USD':
+        case 'EUR':
+            return 2;
+        case 'CNY':
+            return 1;
+        default:
+            return 0;
+    }
+};
+
 // Helper to format date as YYYY-MM-DD HH:MM:SS
 const formatLastUpdated = (date: Date): string => {
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -213,6 +226,15 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
         });
     };
 
+    const handleAmountBlur = () => {
+        if (!amount) return;
+        const val = parseFloat(amount);
+        if (!isNaN(val)) {
+            const precision = getCurrencyPrecision(currency);
+            setAmount(val.toFixed(precision));
+        }
+    };
+
     return (
         <div
             style={{
@@ -310,7 +332,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                     {/* Name/Description */}
                     <div style={{ marginBottom: "1rem" }}>
                         <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
-                            {t('expense.description')} <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>({t('expense.descriptionOptional')})</span>
+                            {t('expense.description')} <span style={{ color: "var(--text-muted)", fontWeight: 400, fontSize: "0.75rem", whiteSpace: "nowrap" }}>({t('expense.descriptionOptional')})</span>
                         </label>
                         <input
                             type="text"
@@ -328,7 +350,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                         <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
                             {t('expense.currency')}
                             {lastUpdated && (
-                                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "0.5rem", fontWeight: 400 }}>
+                                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "0.5rem", fontWeight: 400, whiteSpace: "nowrap" }}>
                                     ({t('expense.updatedAt') || 'Updated'}: {lastUpdated})
                                 </span>
                             )}
@@ -357,7 +379,7 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                                 <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 500 }}>
                                     {t('expense.amount')}
                                     {currency !== 'TWD' && exchangeRates[currency] && (
-                                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "0.5rem", fontWeight: 400 }}>
+                                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "0.5rem", fontWeight: 400, whiteSpace: "nowrap" }}>
                                             (1 {currency} ≈ {(1 / exchangeRates[currency]).toLocaleString(undefined, { maximumFractionDigits: 2 })} TWD)
                                         </span>
                                     )}
@@ -368,8 +390,10 @@ function AddExpenseModal({ groupMembers, onClose, onAdd, editingExpense, onUpdat
                                     className="input"
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
-                                    step="0.01"
+                                    step={getCurrencyPrecision(currency) === 0 ? "1" : (getCurrencyPrecision(currency) === 1 ? "0.1" : "0.01")}
                                     min="0"
+                                    inputMode={getCurrencyPrecision(currency) === 0 ? "numeric" : "decimal"}
+                                    onBlur={handleAmountBlur}
                                     required
                                     placeholder={t('expense.amountPlaceholder')}
                                 />

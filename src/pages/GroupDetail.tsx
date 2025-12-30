@@ -274,7 +274,7 @@ export default function GroupDetail() {
                                 background: "rgba(139, 92, 246, 0.1)",
                                 borderRadius: "8px",
                                 border: "1px solid rgba(139, 92, 246, 0.2)"
-                            }}  onClick={() => setIsCategoryExpanded(!isCategoryExpanded)}>
+                            }} onClick={() => setIsCategoryExpanded(!isCategoryExpanded)}>
                                 <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
                                     {dateRange}
                                 </div>
@@ -282,7 +282,7 @@ export default function GroupDetail() {
                                     ${totalSpending.toFixed(0)}
                                 </div>
                             </div>
-                            { isCategoryExpanded && (
+                            {isCategoryExpanded && (
                                 <>
                                     <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                                         {/* Category List */}
@@ -419,17 +419,17 @@ export default function GroupDetail() {
                                                     transition: "all 0.2s ease",
                                                     border: selectedMember === b.uid ? "1px solid rgba(139, 92, 246, 0.3)" : "1px solid transparent"
                                                 }}
-                                                onClick={() => setSelectedMember(selectedMember === b.uid ? null : b.uid)}
-                                                onMouseEnter={(e) => {
-                                                    if (selectedMember !== b.uid) {
-                                                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (selectedMember !== b.uid) {
-                                                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                                                    }
-                                                }}>
+                                                    onClick={() => setSelectedMember(selectedMember === b.uid ? null : b.uid)}
+                                                    onMouseEnter={(e) => {
+                                                        if (selectedMember !== b.uid) {
+                                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (selectedMember !== b.uid) {
+                                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                                                        }
+                                                    }}>
                                                     <div>
                                                         <span style={{ fontWeight: "500", color: selectedMember === b.uid ? "hsl(var(--color-primary))" : "var(--text-primary)" }}>{b.name}</span>
                                                         <span style={{ color: "var(--text-muted)", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
@@ -439,12 +439,12 @@ export default function GroupDetail() {
                                                     <div style={{
                                                         fontWeight: "600",
                                                         color: b.balance > 0.01 ? "hsl(var(--color-success))" :
-                                                                b.balance < -0.01 ? "hsl(var(--color-danger))" :
+                                                            b.balance < -0.01 ? "hsl(var(--color-danger))" :
                                                                 "var(--text-muted)"
                                                     }}>
                                                         {b.balance > 0.01 ? `${t('group.receivable')} $${b.balance.toFixed(0)}` :
                                                             b.balance < -0.01 ? `${t('group.payable')} $${Math.abs(b.balance).toFixed(0)}` :
-                                                            t('group.settled')}
+                                                                t('group.settled')}
                                                     </div>
                                                 </div>
                                             ))}
@@ -605,23 +605,24 @@ export default function GroupDetail() {
                                                     : '--:--'}
                                             </div>
                                             <div style={{ flex: 1 }}>
-                                                <h4 style={{ fontSize: "1rem", margin: "0 0 0.25rem 0" }}>{expense.description}</h4>
-                                                <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: 0 }}>
-                                                    <span style={{
-                                                        color: PREDEFINED_CATEGORIES.includes(expense.category)
-                                                            ? `var(--category-${expense.category})`
-                                                            : 'var(--category-custom)',
-                                                        fontWeight: "600"
-                                                    }}>
-                                                        {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
-                                                    </span>
-                                                    {' • '}
-                                                    {t('group.paidBy')} <strong>{payerName}</strong>
-                                                    {' • '}
-                                                    <span style={{ color: "var(--text-muted)" }}>
-                                                        ${perPerson.toFixed(1)} / {splitCount}
-                                                    </span>
-                                                </p>
+                                                <h4 style={{ fontSize: "1rem", margin: "0 0 0.25rem 0", fontWeight: "bold" }}>{expense.description}</h4>
+
+                                                {/* Category */}
+                                                <div style={{
+                                                    fontSize: "0.9rem",
+                                                    fontWeight: "600",
+                                                    color: PREDEFINED_CATEGORIES.includes(expense.category)
+                                                        ? `var(--category-${expense.category})`
+                                                        : 'var(--category-custom)',
+                                                    marginBottom: "0.1rem"
+                                                }}>
+                                                    {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
+                                                </div>
+
+                                                {/* Payer */}
+                                                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "0.1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    {t('group.paidBy')} {payerName} {'•'} ${perPerson.toFixed(0)} / {splitCount}
+                                                </div>
                                             </div>
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
