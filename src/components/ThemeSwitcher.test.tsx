@@ -106,7 +106,7 @@ describe('ThemeSwitcher', () => {
       render(<ThemeSwitcher />);
 
       const button = screen.getByRole('button');
-      expect(button.getAttribute('title')).toBe('切換至淺色模式');
+      expect(button.getAttribute('title')).toBe('common.switchToLight');
     });
 
     it('淺色模式應該顯示月亮圖示', () => {
@@ -115,7 +115,7 @@ describe('ThemeSwitcher', () => {
       render(<ThemeSwitcher />);
 
       const button = screen.getByRole('button');
-      expect(button.getAttribute('title')).toBe('切換至深色模式');
+      expect(button.getAttribute('title')).toBe('common.switchToDark');
     });
 
     it('按鈕應該有正確的樣式', () => {

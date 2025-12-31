@@ -7,6 +7,7 @@
 -   **身分驗證**：透過 Firebase Auth 進行安全的 Google 登入。
 -   **群組管理**：建立與管理費用群組。
 -   **即時更新**：使用 Firestore 進行資料即時同步。
+    -   **離線支援**：內建離線操作隊列 (`offlineQueue`)，支援斷線操作與自動同步。
 -   **費用追蹤**：在群組內新增與查看費用。
     -   **日期分組顯示**：同一天的費用記錄會顯示在同一張卡片中，並顯示當日總額
     -   **智能描述**：食品類別自動根據時間填入餐點名稱（早餐、早午餐、午餐、晚餐、點心）
@@ -39,6 +40,7 @@
 -   **樣式**：Vanilla CSS 搭配客製化設計系統
 -   **圖示**：Lucide React
 -   **國際化**：i18next 25.7.2
+-   **效能優化**：React.memo 減少不必要的重新渲染
 
 ## 前置需求
 
@@ -99,12 +101,32 @@ npm run dev
 
 應用程式將會在 `http://localhost:5173` 執行。
 
+### 國際化 (i18n)
+
+專案支援繁體中文、簡體中文與英文。翻譯檔案位於 `src/i18n/locales/`。
+若要新增語言，請在該目錄新增對應的 JSON 檔案，並更新 `src/i18n/config.ts` 與 `src/contexts/LanguageContext.tsx`。
+
+## 測試
+
+本專案包含完整的單元測試，覆蓋核心商業邏輯。
+
+```bash
+npm test
+```
+
+測試範圍包括：
+-   `src/hooks/useSettlement.test.ts`: 結算邏輯與精確度
+-   `src/utils/offlineQueue.test.ts`: 離線同步機制
+-   `src/components/ThemeSwitcher.test.tsx`: 主題切換與持久化
+-   `src/components/AddExpenseModal.test.tsx`: 表單驗證與類別邏輯
+
 ## 可用的指令
 
 ```bash
 npm run dev          # 啟動開發伺服器
 npm run build        # 建置生產版本
 npm run preview      # 預覽建置結果
+npm test             # 執行單元測試
 npm run type-check   # 執行 TypeScript 型別檢查
 npm run lint         # 執行 ESLint 程式碼檢查
 npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
@@ -188,6 +210,13 @@ npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
 2.  安裝依賴並建置（`npm ci && npm run build`）
 3.  使用環境變數注入 Firebase 配置
 4.  部署至 Firebase Hosting（`FirebaseExtended/action-hosting-deploy@v0`）
+
+## 離線支援與同步技術細節
+
+應用程式實作了強大的離線功能：
+-   **資料持久化**：使用 Firestore SDK 的離線快取，讓使用者在斷線時仍能讀取資料。
+-   **離線操作隊列**：自定義的 `OfflineQueue` 機制 (`src/utils/offlineQueue.ts`) 會捕捉離線時的寫入操作。
+-   **自動同步**：當網路恢復時，系統會自動處理隊列中的操作，確保資料一致性。
 
 ## 專案結構
 
