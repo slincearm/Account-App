@@ -10,12 +10,16 @@ export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: s
 
     useEffect(() => {
         if (!groupId) return;
+        let isMounted = true;
 
         const unsubscribe = onSnapshot(doc(db, "groups", groupId), async (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 const groupData = { id: docSnap.id, ...data } as Group;
-                setGroup(groupData);
+
+                if (isMounted) {
+                    setGroup(groupData);
+                }
 
                 // Fetch member details
                 const memberList: Member[] = [];
@@ -42,18 +46,29 @@ export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: s
                     });
                 }
 
-                setMembers(memberList);
+                if (isMounted) {
+                    setMembers(memberList);
+                }
             } else {
-                setGroup(null);
-                setMembers([]);
+                if (isMounted) {
+                    setGroup(null);
+                    setMembers([]);
+                }
             }
-            setLoading(false);
+            if (isMounted) {
+                setLoading(false);
+            }
         }, (err) => {
             console.error("Error fetching group:", err);
-            setLoading(false);
+            if (isMounted) {
+                setLoading(false);
+            }
         });
 
-        return unsubscribe;
+        return () => {
+            isMounted = false;
+            unsubscribe();
+        };
     }, [groupId]);
 
     const addMember = async (uid: string): Promise<void> => {
