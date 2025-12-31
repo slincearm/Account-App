@@ -2,6 +2,7 @@
  * Offline Queue Utility
  * Handles queuing operations when offline and retrying when back online
  */
+import { logger } from "./logger";
 
 interface QueuedOperation {
     id: string;
@@ -26,7 +27,7 @@ class OfflineQueue {
             timestamp: Date.now(),
             retries: 0
         });
-        console.log(`📝 Operation queued: ${id}`);
+        logger.debug(`📝 Operation queued: ${id}`);
         return id;
     }
 
@@ -39,7 +40,7 @@ class OfflineQueue {
         }
 
         this.processing = true;
-        console.log(`🔄 Processing ${this.queue.length} queued operations...`);
+        logger.info(`🔄 Processing ${this.queue.length} queued operations...`);
 
         const operations = [...this.queue];
         this.queue = [];
@@ -47,17 +48,17 @@ class OfflineQueue {
         for (const op of operations) {
             try {
                 await op.operation();
-                console.log(`✅ Operation completed: ${op.id}`);
+                logger.debug(`✅ Operation completed: ${op.id}`);
             } catch (error) {
-                console.error(`❌ Operation failed: ${op.id}`, error);
+                logger.error(`❌ Operation failed: ${op.id}`, error);
 
                 // Retry if under max retries
                 if (op.retries < this.MAX_RETRIES) {
                     op.retries++;
                     this.queue.push(op);
-                    console.log(`🔁 Retrying operation: ${op.id} (Attempt ${op.retries}/${this.MAX_RETRIES})`);
+                    logger.warn(`🔁 Retrying operation: ${op.id} (Attempt ${op.retries}/${this.MAX_RETRIES})`);
                 } else {
-                    console.error(`❌ Operation failed after ${this.MAX_RETRIES} retries: ${op.id}`);
+                    logger.error(`❌ Operation failed after ${this.MAX_RETRIES} retries: ${op.id}`);
                 }
             }
         }
@@ -85,7 +86,7 @@ class OfflineQueue {
      */
     clear(): void {
         this.queue = [];
-        console.log('🗑️  Queue cleared');
+        logger.info('🗑️  Queue cleared');
     }
 }
 
@@ -103,7 +104,7 @@ export async function withOfflineSupport<T>(
     } catch (error: any) {
         // Check if it's a network error
         if (error.code === 'unavailable' || !navigator.onLine) {
-            console.warn('⚠️  Operation failed due to offline status, queuing for later...');
+            logger.warn('⚠️  Operation failed due to offline status, queuing for later...');
             offlineQueue.add(operation as () => Promise<void>);
 
             if (onError) {

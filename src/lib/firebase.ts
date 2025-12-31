@@ -5,6 +5,7 @@ import {
     persistentLocalCache,
     persistentMultipleTabManager
 } from "firebase/firestore";
+import { logger } from "../utils/logger";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -26,3 +27,5 @@ export const db = initializeFirestore(app, {
         tabManager: persistentMultipleTabManager()
     })
 });
+
+logger.info("Firebase initialized with persistent local cache enabled.");
