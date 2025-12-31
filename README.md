@@ -33,71 +33,68 @@
 
 ## 技術堆疊
 
--   **前端**：React 19.2.3, Vite 7, React Router v7
--   **後端/服務**：Firebase (Firestore, Authentication, Hosting, Functions)
--   **數據視覺化**：Recharts 3.5.1
--   **樣式**：Vanilla CSS 搭配客製化設計系統
--   **圖示**：Lucide React
--   **國際化**：i18next 25.7.2
+### 核心框架 & 工具
 
-## 前置需求
+-   **React** (`^19.2.3`): 用於建構使用者介面的核心 JavaScript 函式庫。
+-   **Vite** (`^7.2.4`): 作為前端開發與建置工具，提供極速的熱模組替換（HMR）和優化的建置流程。
+-   **TypeScript** (`^5.9.3`): 為專案提供靜態型別檢查，提升程式碼品質與可維護性。
+-   **React Router** (`^7.10.1`): 用於處理客戶端路由，實現單頁應用程式（SPA）的導覽。
 
--   Node.js (建議 v18 或更高版本)
--   Firebase CLI (`npm install -g firebase-tools`)
+### 後端 & 資料庫
 
-## 安裝與設定
+-   **Firebase** (`^12.6.0`): 提供後端即服務（BaaS），包括：
+    -   **Firestore**: 作為主要的 NoSQL 雲端資料庫。
+    -   **Authentication**: 處理使用者身分驗證。
+    -   **Hosting**: 用於部署 Web 應用程式。
+    -   **Functions**: 用於執行後端無伺服器邏輯。
 
-1.  **安裝依賴套件**：
-    ```bash
-    npm install
-    # 注意：這也會一併安裝 'functions' 目錄下的依賴套件 (如果已設定)。
-    ```
+### 狀態管理 & 國際化
 
-2.  **Firebase 設定**：
-    -   複製 `.env.example` 檔案並重新命名為 `.env`：
-        ```bash
-        cp .env.example .env
-        ```
-    -   前往 [Firebase Console](https://console.firebase.google.com/)
-    -   選擇您的 Firebase 專案
-    -   點擊專案設定（齒輪圖示）→ 您的應用程式
-    -   複製 Firebase 配置資訊並填入 `.env` 檔案中
-    -   `.env` 檔案範例：
-        ```env
-        VITE_FIREBASE_API_KEY=your_api_key_here
-        VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-        VITE_FIREBASE_PROJECT_ID=your_project_id
-        VITE_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
-        VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-        VITE_FIREBASE_APP_ID=your_app_id
-        VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-        ```
-    -   **重要**：請勿將 `.env` 檔案提交到版本控制系統中（已在 `.gitignore` 中排除）
-    -   請確保您已設定 `.firebaserc` 和 `firebase.json` 檔案。
+-   **React Context**: 用於在組件之間共享狀態（例如：使用者認證、語言設定）。
+-   **i18next** (`^25.7.2`): 一個強大的國際化框架，用於實現多語言支援。
+-   **react-i18next** (`^16.4.0`): i18next 的 React 整合版本。
 
-3.  **管理者設定**：
-    -   在 Firebase Firestore 中建立 `admin` collection
-    -   新增管理者的 email 資料，例如：
-    ```javascript
-    // Firestore > admin collection
-    {
-      "adminId1": {
-        "email": "admin@example.com"
-      }
-    }
-    ```
-    -   登入時系統會自動檢查使用者 email 是否在 admin collection 中
-    -   管理者會自動獲得存取權限，並可進入管理者面板管理其他使用者
+### UI & 視覺化
 
-## 開發
+-   **Recharts** (`^3.5.1`): 一個基於 React 的圖表函式庫，用於資料視覺化（例如：圓餅圖）。
+-   **Lucide React** (`^0.556.0`): 提供一組簡潔、一致的 SVG 圖示。
+-   **Vanilla CSS**: 使用原生的 CSS 進行樣式設計，以保持輕量和高效。
 
-啟動本地開發伺服器：
+### 開發與測試
 
-```bash
-npm run dev
-```
+-   **Vitest** (`^4.0.15`): 一個由 Vite 驅動的極速單元測試框架。
+-   **ESLint** (`^9.39.1`): 用於靜態程式碼分析，確保程式碼風格的一致性。
+-   **Testing Library** (`^16.3.0`): 提供一組輔助工具，用於以使用者為中心的方式測試 React 組件。
 
-應用程式將會在 `http://localhost:5173` 執行。
+## 開發者文件
+
+為了讓程式碼庫更容易維護，我們將詳細的技術文件和版本歷史記錄保存在以下位置：
+
+-   **[開發者指南](./docs/README.md)**：包含安裝、設定、部署和常見問題排解的詳細說明。
+-   **[版本歷史](./CHANGELG.md)**：查看詳細的專案版本歷史和更新日誌。
+-   **技術文件**:
+    -   **[錯誤處理](./docs/ERROR_HANDLING.md)**
+    -   **[離線快取](./docs/OFFLINE_CACHE.md)**
+    -   **[性能優化](./docs/PERFORMANCE_OPTIMIZATION.md)**
+    -   **[國際化 (i18n)](./docs/i18n.md)**
+    -   **[TypeScript](./docs/typescript-migration.md)**
+
+## GitHub Actions 自動部署
+
+本專案已配置 GitHub Actions 工作流程，可在程式碼合併至 `main` 分支時自動部署。
+
+### GitHub Secrets 設定
+
+為了讓 GitHub Actions 正常運作，需要在 GitHub Repository Settings 中設定以下 Secrets：
+-   `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP`
+-   `FIREBASE_PROJECT_ID`
+-   `VITE_FIREBASE_API_KEY`
+-   `VITE_FIREBASE_AUTH_DOMAIN`
+-   `VITE_FIREBASE_PROJECT_ID`
+-   `VITE_FIREBASE_STORAGE_BUCKET`
+-   `VITE_FIREBASE_MESSAGING_SENDER_ID`
+-   `VITE_FIREBASE_APP_ID`
+-   `VITE_FIREBASE_MEASUREMENT_ID`
 
 ## 可用的指令
 
@@ -107,174 +104,4 @@ npm run build        # 建置生產版本
 npm run preview      # 預覽建置結果
 npm run type-check   # 執行 TypeScript 型別檢查
 npm run lint         # 執行 ESLint 程式碼檢查
-npm run clean        # 清除動態生成的檔案 (dist, .vite, .firebase)
 ```
-
-## 建置與部署
-
-### 手動部署
-
-1.  **建置專案**：
-    將 React 應用程式編譯至 `dist` 資料夾。
-    ```bash
-    npm run build
-    ```
-
-2.  **清除快取**（可選）：
-    清除之前的建置檔案和快取。
-    ```bash
-    npm run clean
-    ```
-
-3.  **部署至 Firebase**：
-    部署靜態檔案、Firestore 規則與索引。
-    ```bash
-    firebase deploy
-    ```
-
-    *若要部署特定元件：*
-    ```bash
-    firebase deploy --only hosting   # 只部署網頁應用程式
-    firebase deploy --only firestore # 只部署資料庫規則/索引
-    ```
-
-### GitHub Actions 自動部署
-
-本專案已配置 GitHub Actions 工作流程，可在以下情況自動部署：
-
-#### 工作流程
-
-1.  **Pull Request 預覽部署** (`firebase-hosting-pull-request.yml`)
-    -   觸發時機：當 Pull Request 建立或更新時
-    -   行為：自動建置並部署至 Firebase Hosting 預覽頻道
-    -   部署結果會以留言形式出現在 PR 中
-
-2.  **正式環境部署** (`firebase-hosting-merge.yml`)
-    -   觸發時機：當程式碼合併至 `main` 分支時
-    -   行為：自動建置並部署至 Firebase Hosting 正式環境 (live channel)
-
-#### GitHub Secrets 設定
-
-為了讓 GitHub Actions 正常運作，需要在 GitHub Repository Settings 中設定以下 Secrets：
-
-1.  前往 GitHub Repository → Settings → Secrets and variables → Actions
-2.  新增以下 Secrets：
-
-**Firebase 相關 Secrets：**
--   `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP` - Firebase 服務帳戶金鑰
-    -   取得方式：Firebase Console → 專案設定 → 服務帳戶 → 產生新的私密金鑰
-    -   將整個 JSON 檔案內容貼上
--   `FIREBASE_PROJECT_ID` - Firebase 專案 ID（例如：`accounting-app-a4487`）
-
-**Firebase 配置 Secrets（建置時需要）：**
--   `VITE_FIREBASE_API_KEY` - Firebase API 金鑰
--   `VITE_FIREBASE_AUTH_DOMAIN` - Firebase Auth 網域
--   `VITE_FIREBASE_PROJECT_ID` - Firebase 專案 ID
--   `VITE_FIREBASE_STORAGE_BUCKET` - Firebase Storage Bucket
--   `VITE_FIREBASE_MESSAGING_SENDER_ID` - Firebase Messaging Sender ID
--   `VITE_FIREBASE_APP_ID` - Firebase App ID
--   `VITE_FIREBASE_MEASUREMENT_ID` - Firebase Measurement ID（可選）
-
-> **注意**：`GITHUB_TOKEN` 由 GitHub Actions 自動提供，無需手動設定。
-
-#### 工作流程檔案
-
-工作流程檔案位於 `.github/workflows/` 目錄：
--   `firebase-hosting-pull-request.yml` - PR 預覽部署
--   `firebase-hosting-merge.yml` - 正式環境部署
-
-這些檔案會自動執行以下步驟：
-1.  檢出程式碼（`actions/checkout@v4`）
-2.  安裝依賴並建置（`npm ci && npm run build`）
-3.  使用環境變數注入 Firebase 配置
-4.  部署至 Firebase Hosting（`FirebaseExtended/action-hosting-deploy@v0`）
-
-## 專案結構
-
--   `src/`: 前端 React 原始程式碼
-    -   `components/`: 可重複使用的 UI 元件
-    -   `pages/`: 路由頁面元件
-        -   `AdminPanel.tsx`: 管理者面板，用於管理使用者權限
-    -   `contexts/`: React Context 提供者 (Auth 等)
-    -   `hooks/`: 用於資料獲取的自定義 Hooks
-    -   `lib/`: Firebase 初始化設定
-    -   `i18n/`: 多語系支援 (繁體中文、簡體中文、英文)
--   `functions/`: Cloud Functions 後端程式碼
--   `firestore.rules`: 資料庫安全規則
--   `firestore.indexes.json`: 資料庫查詢索引定義
-
-## 管理者功能
-
-### 存取管理者面板
-
-1. 以管理者身份登入後，頂部導航列會顯示「管理者」按鈕（盾牌圖示）
-2. 點擊進入管理者面板
-
-### 管理者面板功能
-
--   **查看所有使用者**：分為「未認證使用者」和「已認證使用者」兩個區塊
--   **切換認證狀態**：點擊使用者卡片可切換其 `isApproved` 狀態
--   **批次修改**：可同時修改多個使用者的認證狀態
--   **取消變更**：點擊「取消」按鈕放棄所有未儲存的修改
--   **儲存變更**：點擊「儲存變更」按鈕將所有修改上傳至 Firebase
--   **防護機制**：管理者帳號無法被修改認證狀態，避免誤操作
-
-### 管理者識別機制
-
--   登入時自動檢查 Firebase `admin` collection 中的 email
--   若使用者 email 與管理者 email 相符，則：
-    -   設定 `isAdmin: true`
-    -   自動認證 `isApproved: true`
-    -   顯示「管理者」徽章
-    -   啟用管理者面板存取權限
-## 常見問題排解
-
-### Firebase 部署錯誤
-
-**問題：** `Permission denied on resource project`
-
-**原因：** 通常是因為 Firebase 專案 ID 不匹配或服務帳戶權限不足
-
-**解決方案：**
-1.  檢查 `.firebaserc` 檔案中的專案 ID 是否正確
-    ```json
-    {
-      "projects": {
-        "default": "accounting-app-a4487"  // 確認這是正確的專案 ID
-      }
-    }
-    ```
-
-2.  確認您已在 Firebase Console 中啟用相關 API：
-    -   Firebase Hosting API
-    -   Cloud Firestore API
-    -   Firebase Extensions API（如果使用）
-
-3.  重新驗證 Firebase CLI：
-    ```bash
-    firebase logout
-    firebase login
-    ```
-
-4.  對於 GitHub Actions 部署錯誤：
-    -   確認 `FIREBASE_SERVICE_ACCOUNT_ACCOUNTING_APP` Secret 已正確設定
-    -   確認服務帳戶具有足夠的權限（建議使用 Editor 角色）
-    -   檢查 `FIREBASE_PROJECT_ID` 是否與 `.firebaserc` 中的專案 ID 一致
-
-### GitHub Actions 建置失敗
-
-**問題：** `VITE_FIREBASE_* environment variables not found`
-
-**解決方案：**
-1.  確認已在 GitHub Repository Settings → Secrets 中設定所有必要的環境變數
-2.  檢查 Secret 名稱是否完全符合（區分大小寫）
-3.  確認所有 7 個 Firebase 配置 Secrets 都已設定
-
-### 本地開發問題
-
-**問題：** 無法連接到 Firebase
-
-**解決方案：**
-1.  檢查 `.env` 檔案是否存在且包含所有必要的配置
-2.  確認沒有意外將 `.env` 檔案提交到 Git（檢查 `.gitignore`）
-3.  重新啟動開發伺服器 `npm run dev`
