@@ -605,18 +605,18 @@ export default function GroupDetail() {
                                                     : '--:--'}
                                             </div>
                                             <div style={{ flex: 1 }}>
-                                                <h4 style={{ fontSize: "1rem", margin: "0 0 0.25rem 0", fontWeight: "bold" }}>{expense.description}</h4>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
 
-                                                {/* Category */}
-                                                <div style={{
-                                                    fontSize: "0.9rem",
-                                                    fontWeight: "600",
-                                                    color: PREDEFINED_CATEGORIES.includes(expense.category)
-                                                        ? `var(--category-${expense.category})`
-                                                        : 'var(--category-custom)',
-                                                    marginBottom: "0.1rem"
-                                                }}>
-                                                    {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
+                                                    <div style={{
+                                                        fontSize: "0.9rem",
+                                                        fontWeight: "600",
+                                                        color: PREDEFINED_CATEGORIES.includes(expense.category)
+                                                            ? `var(--category-${expense.category})`
+                                                            : 'var(--category-custom)',
+                                                    }}>
+                                                        {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
+                                                    </div>
+                                                    <h4 style={{ fontSize: "1rem", margin: "0", fontWeight: "bold" }}>{expense.description}</h4>
                                                 </div>
 
                                                 {/* Payer */}
