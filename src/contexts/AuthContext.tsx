@@ -15,10 +15,13 @@ import {
     getDoc,
     Unsubscribe,
     collection,
-    getDocs
+    getDocs,
+    query,
+    where
 } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
 import { AuthContextType, UserData } from "../types";
+import { logger } from "../utils/logger";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -40,10 +43,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [loading, setLoading] = useState<boolean>(true);
 
     const login = (): Promise<UserCredential> => {
+        logger.info("Initiating login...");
         return signInWithPopup(auth, new GoogleAuthProvider());
     };
 
     const logout = (): Promise<void> => {
+        logger.info("Initiating logout...");
         return signOut(auth);
     };
 
@@ -52,6 +57,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         const unsubscribeAuth = onAuthStateChanged(auth, async (user: FirebaseUser | null) => {
             if (user) {
+                logger.info(`User authenticated: ${user.email}`);
                 setCurrentUser(user);
 
                 // Reference to the user document
@@ -60,14 +66,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 // Check if user exists, if not create them
                 const snap = await getDoc(userRef);
                 if (!snap.exists()) {
+                    logger.info(`Creating new user profile for ${user.email}`);
                     // Check if user is admin by comparing with admin collection
                     let isAdmin = false;
                     try {
-                        const adminsSnapshot = await getDocs(collection(db, "admin"));
-                        const adminEmails = adminsSnapshot.docs.map(doc => doc.data().email);
-                        isAdmin = user.email ? adminEmails.includes(user.email) : false;
+                        if (user.email) {
+                            const adminQuery = query(collection(db, "admin"), where("email", "==", user.email));
+                            const adminSnapshot = await getDocs(adminQuery);
+                            isAdmin = !adminSnapshot.empty;
+                        }
                     } catch (error) {
-                        console.error("Error checking admin status:", error);
+                        logger.error("Error checking admin status:", error);
                     }
 
                     await setDoc(userRef, {
@@ -85,12 +94,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 unsubscribeSnapshot = onSnapshot(userRef, (doc) => {
                     const data = doc.data() as UserData | undefined;
                     setUserData(data || null);
+                    logger.debug(`User data updated: isApproved=${data?.isApproved}, isAdmin=${data?.isAdmin}`);
                     // Optionally merge into currentUser or keep separate
                 }, (error) => {
-                    console.error("Error fetching user data:", error);
+                    logger.error("Error fetching user data:", error);
                 });
 
             } else {
+                logger.info("User signed out");
                 setCurrentUser(null);
                 setUserData(null);
                 if (unsubscribeSnapshot) {

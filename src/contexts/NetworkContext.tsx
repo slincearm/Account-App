@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { offlineQueue } from "../utils/offlineQueue";
+import { logger } from "../utils/logger";
 
 interface NetworkContextType {
     isOnline: boolean;
@@ -28,17 +29,19 @@ export function NetworkProvider({ children }: NetworkProviderProps) {
         const handleOnline = () => {
             setIsOnline(true);
             if (wasOffline) {
-                console.log('📶 Back online - syncing data...');
+                logger.info('📶 Back online - syncing data...');
                 // Process any queued operations
                 offlineQueue.processQueue();
                 setWasOffline(false);
+            } else {
+                logger.debug('Network status changed: Online');
             }
         };
 
         const handleOffline = () => {
             setIsOnline(false);
             setWasOffline(true);
-            console.log('📵 Offline mode - using cached data');
+            logger.warn('📵 Offline mode - using cached data');
         };
 
         // Add event listeners
