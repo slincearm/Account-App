@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getToken } from "firebase/messaging";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { messaging, db } from "../lib/firebase";
@@ -8,38 +8,42 @@ import { logger } from "../utils/logger";
 export function useFcm() {
     const { currentUser } = useAuth();
 
-    useEffect(() => {
-        const initFcm = async () => {
-            if (!currentUser) return;
+    const [permission, setPermission] = useState<NotificationPermission>(
+        Notification.permission
+    );
 
-            try {
-                // Check if notification permission is granted
-                const permission = await Notification.requestPermission();
-                if (permission !== "granted") {
-                    logger.info("Notification permission not granted.");
-                    return;
-                }
+    const requestPermission = async () => {
+        try {
+            const perm = await Notification.requestPermission();
+            setPermission(perm);
 
-                // Get FCM Token
+            if (perm === "granted") {
                 const token = await getToken(messaging, {
                     vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
                 });
 
-                if (token) {
+                if (token && currentUser) {
                     logger.info("FCM Token:", token);
-                    // Save token to Firestore
                     const userRef = doc(db, "users", currentUser.uid);
                     await updateDoc(userRef, {
                         fcmTokens: arrayUnion(token),
                     });
-                } else {
-                    logger.warn("No registration token available. Request permission to generate one.");
                 }
-            } catch (error) {
-                logger.error("An error occurred while retrieving token.", error);
+            } else {
+                logger.warn("Notification permission denied");
             }
-        };
+        } catch (error) {
+            logger.error("Error requesting permission:", error);
+        }
+    };
 
-        initFcm();
-    }, [currentUser]);
+    useEffect(() => {
+        // Auto-initialize if already granted
+        if (permission === 'granted') {
+            requestPermission();
+        }
+        // If 'default', we wait for user interaction (called via UI)
+    }, [currentUser, permission]);
+
+    return { permission, requestPermission };
 }

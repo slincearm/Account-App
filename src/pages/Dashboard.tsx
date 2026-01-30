@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Users, History, CheckCircle, Trash2 } from "lucide-react";
+import { Plus, Users, History, CheckCircle, Trash2, Bell } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useGroups } from "../hooks/useGroups";
 import CreateGroupModal from "../components/CreateGroupModal";
 import { useTranslation } from "react-i18next";
+import { useFcm } from "../hooks/useFcm"; // Import useFcm
 
 export default function Dashboard() {
     const { currentUser } = useAuth();
@@ -12,6 +13,7 @@ export default function Dashboard() {
     const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { permission, requestPermission } = useFcm(); // Use hook
 
     const handleSettleClick = (groupId: string): void => {
         navigate(`/settle/${groupId}`);
@@ -38,6 +40,17 @@ export default function Dashboard() {
                     <p style={{ color: "var(--text-secondary)" }}>{t('common.welcome')}, {currentUser?.displayName}</p>
                 </div>
                 <div className="flex-center" style={{ gap: "1rem" }}>
+                    {permission === 'default' && (
+                        <button
+                            className="btn btn-secondary"
+                            onClick={requestPermission}
+                            title="開啟通知"
+                            style={{ color: "hsl(var(--color-primary))" }}
+                        >
+                            <Bell size={18} />
+                            <span className="hide-mobile">開啟通知</span>
+                        </button>
+                    )}
                     <Link to="/history" className="btn btn-secondary">
                         <History size={18} />
                         <span className="hide-mobile">{t('dashboard.history')}</span>
