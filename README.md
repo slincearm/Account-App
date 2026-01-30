@@ -21,6 +21,9 @@
     -   **模態框互動**：所有彈窗支援點擊背景關閉，提升操作便利性
     -   **主題優化**：優化淺色主題的對比度與視覺效果
 -   **多語言支持**：支援繁體中文、簡體中文、英文三種語言介面。
+-   **推播通知 (FCM)**：
+    -   **即時通知**：當群組成員新增或修改帳目時，其他成員會收到推播通知。
+    -   **PWA 支援**：支援安裝至手機主畫面 (Add to Home Screen)，並在背景接收通知。
 -   **短期帳本功能**：
     -   **臨時群組**：建立短期帳本，專為旅遊或臨時活動設計
     -   **雙重成員管理**：既可新增認證使用者，也可新增臨時成員（無需系統帳號）
@@ -94,7 +97,9 @@
 -   `VITE_FIREBASE_STORAGE_BUCKET`
 -   `VITE_FIREBASE_MESSAGING_SENDER_ID`
 -   `VITE_FIREBASE_APP_ID`
+-   `VITE_FIREBASE_APP_ID`
 -   `VITE_FIREBASE_MEASUREMENT_ID`
+-   `VITE_FIREBASE_VAPID_KEY`
 
 ## 可用的指令
 

@@ -1,5 +1,40 @@
 # 更新日誌
 
+## [2026-01-30] - FCM 推播通知與 PWA 支援
+
+### 新增功能
+- **Firebase Cloud Messaging (FCM) 推播通知**
+  - 實作前後端推播機制，支援跨裝置通知
+  - **新增帳目通知**：當群組成員新增帳目時，其他成員會收到推播通知
+  - **修改帳目通知**：當帳目金額或內容被修改時，發送更新通知
+  - 支援背景通知 (Background Notification)，即使 App 關閉也能接收
+
+- **PWA (Progressive Web App) 支援**
+  - 新增 `manifest.json` 與 Service Worker
+  - 支援 iOS/Android 安裝至主畫面 (Add to Home Screen)
+  - 確保在 iOS 上也能接收推播通知 (需安裝為 PWA)
+
+### 技術細節
+- **前端架構**
+  - 新增 `useFcm` Hook：處理權限請求、Token 獲取與 Firestore 儲存
+  - 新增 `FcmInitializer` 組件：確保登入後自動初始化 FCM
+  - 新增 `firebase-messaging-sw.js`：處理背景 Service Worker 邏輯
+- **後端架構 (Cloud Functions)**
+  - 新增 `onExpenseWrite` 觸發器：監聽 `groups/{groupId}/expenses` 集合
+  - 實作自動查找群組成員並發送 Multicast 訊息的邏輯
+- **CI/CD**
+  - 更新 GitHub Actions workflow，注入 `VITE_FIREBASE_VAPID_KEY` 環境變數
+
+### 影響檔案
+- `src/hooks/useFcm.ts` (新增)
+- `src/components/FcmInitializer.tsx` (新增)
+- `public/firebase-messaging-sw.js` (新增)
+- `public/manifest.json` (新增)
+- `functions/index.js` (修改)
+- `src/App.tsx` (修改)
+- `src/lib/firebase.ts` (修改)
+- `.github/workflows/*.yml` (修改)
+
 ## [2026-01-01] - 群組詳情卡片合併與程式碼品質優化
 
 ### UI/UX 介面改善

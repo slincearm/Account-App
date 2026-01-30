@@ -7,6 +7,7 @@ import { NetworkProvider } from "./contexts/NetworkContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import NetworkStatus from "./components/NetworkStatus";
+import FcmInitializer from "./components/FcmInitializer";
 
 // 使用 lazy loading 進行代碼分割
 const Login = lazy(() => import("./pages/Login"));
@@ -33,6 +34,7 @@ export default function App() {
     <NetworkProvider>
       <LanguageProvider>
         <AuthProvider>
+          <FcmInitializer />
           <BrowserRouter>
             <NetworkStatus />
             <Suspense fallback={<LoadingFallback />}>

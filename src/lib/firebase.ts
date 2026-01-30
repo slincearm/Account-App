@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getMessaging } from "firebase/messaging";
 import {
     initializeFirestore,
     persistentLocalCache,
@@ -19,6 +20,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const messaging = getMessaging(app);
 
 // Enable offline persistence with multi-tab support (New API)
 // This allows the app to work offline and sync when back online
