@@ -31,5 +31,11 @@ messaging.onBackgroundMessage((payload) => {
         icon: '/vite.svg' // Customize icon if needed
     };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    // [DUPLICATE NOTIFICATION FIX]
+    // If the payload contains a 'notification' checking, the browser handles it automatically.
+    // Calling showNotification here causes a second (duplicate) notification.
+    // We only need this if we are sending "data-only" messages and want to construct the notification manually.
+
+    // self.registration.showNotification(notificationTitle, notificationOptions);
+    console.log('[firebase-messaging-sw.js] Background message handled automatically by browser.');
 });
