@@ -25,11 +25,11 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
     // Customize notification here
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/vite.svg' // Customize icon if needed
-    };
+    // const notificationTitle = payload.notification.title;
+    // const notificationOptions = {
+    //     body: payload.notification.body,
+    //     icon: '/vite.svg' // Customize icon if needed
+    // };
 
     // [DUPLICATE NOTIFICATION FIX]
     // If the payload contains a 'notification' checking, the browser handles it automatically.
