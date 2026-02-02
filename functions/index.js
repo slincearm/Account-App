@@ -66,9 +66,10 @@ exports.onExpenseWrite = onDocumentWritten("groups/{groupId}/expenses/{expenseId
 
         // 4. Construct Message
         const title = isNew ? "新帳目" : "帳目修改";
+        const description = newData.description || "未命名";
         const body = isNew
-            ? `${payerName} 新增了一筆項目：${amount} 元`
-            : `${payerName} 修改了一筆項目：${amount} 元`;
+            ? `${payerName} 新增項目 ${description} : ${amount}元`
+            : `${payerName} 修改項目 ${description} : ${amount}元`;
 
         // 5. Send Multicast
         const message = {
