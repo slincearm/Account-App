@@ -1,6 +1,6 @@
 {
-    "name": "SimpleTally",
-    "short_name": "SimpleTally",
+    "name": "簡單記",
+    "short_name": "簡單記",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",

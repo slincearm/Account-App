@@ -5,9 +5,23 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/pwa-192x192.png" />
   <link rel="apple-touch-icon" href="/pwa-192x192.png" />
-  <link rel="manifest" href="/manifest.json" />
+  <script>
+    (function () {
+      var link = document.createElement('link');
+      link.rel = 'manifest';
+      // Check for Traditional Chinese (TW or HK)
+      if (navigator.language === 'zh-TW' || navigator.language === 'zh-HK' || navigator.language === 'zh-Hant') {
+        link.href = '/manifest_zh.json';
+        document.title = "簡單記";
+      } else {
+        link.href = '/manifest.json';
+        document.title = "SimpleTally";
+      }
+      document.head.appendChild(link);
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SimpleTally - 簡單記 </title>
+  <title>SimpleTally</title>
 </head>
 
 <body>
