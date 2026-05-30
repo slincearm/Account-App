@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { doc, onSnapshot, updateDoc, arrayUnion, collection, getDocs, query, where } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { Group, Member, UseGroupReturn } from "../types";
 
-export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: string) => Promise<void>; addTemporaryMember: (name: string) => Promise<void> } {
+export function useGroup(groupId: string): UseGroupReturn & {
+    addMember: (uid: string) => Promise<void>;
+    addTemporaryMember: (name: string) => Promise<void>;
+    removeTemporaryMember: (memberId: string) => Promise<void>;
+} {
     const [group, setGroup] = useState<Group | null>(null);
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -100,5 +104,23 @@ export function useGroup(groupId: string): UseGroupReturn & { addMember: (uid: s
         }
     };
 
-    return { group, members, loading, addMember, addTemporaryMember };
+    const removeTemporaryMember = async (memberId: string): Promise<void> => {
+        try {
+            if (!group || !group.temporaryMembers) return;
+            const tempMemberToRemove = group.temporaryMembers.find(m => m.id === memberId);
+            if (!tempMemberToRemove) {
+                throw new Error("Temporary member not found in group");
+            }
+
+            await updateDoc(doc(db, "groups", groupId), {
+                temporaryMembers: arrayRemove(tempMemberToRemove)
+            });
+        } catch (err) {
+            console.error("Failed to remove temporary member:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            throw new Error(`Failed to remove temporary member: ${errorMessage}`);
+        }
+    };
+
+    return { group, members, loading, addMember, addTemporaryMember, removeTemporaryMember };
 }

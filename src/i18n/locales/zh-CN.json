@@ -68,7 +68,9 @@
     "groupNotFound": "找不到群组",
     "unknown": "未知",
     "uncategorized": "未分类",
-    "expenseCount": "笔消费明细"
+    "expenseCount": "笔消费明细",
+    "memberHasExpensesWarning": "此成员已有费用记录，无法删除。请先删除或修改相关费用。",
+    "confirmDeleteTemporaryMember": "确定要删除临时成员 {{name}} 吗？"
   },
   "expense": {
     "add": "添加费用",
@@ -201,6 +203,7 @@
     "updateExpenseFailed": "更新费用失败，请再试一次。",
     "loadUsersFailed": "加载用户列表失败，请重试。",
     "updateUsersFailed": "更新用户权限失败，请重试。",
-    "deleteUserFailed": "删除用户失败，请再试一次。"
+    "deleteUserFailed": "删除用户失败，请再试一次。",
+    "deleteMemberFailed": "删除成员失败，请重试。"
   }
 }

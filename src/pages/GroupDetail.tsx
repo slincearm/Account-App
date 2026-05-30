@@ -51,7 +51,7 @@ export default function GroupDetail() {
 
     if (!groupId) return <div className="container text-center mt-10">{t('group.invalidGroupId')}</div>;
 
-    const { group, members, addMember, addTemporaryMember, loading: groupLoading } = useGroup(groupId);
+    const { group, members, addMember, addTemporaryMember, removeTemporaryMember, loading: groupLoading } = useGroup(groupId);
     const { expenses, addExpense, deleteExpense, updateExpense, loading: expensesLoading } = useExpenses(groupId);
 
     const [showAddExpense, setShowAddExpense] = useState(false);
@@ -69,6 +69,26 @@ export default function GroupDetail() {
         } catch (error) {
             console.error("Failed to delete expense:", error);
             alert(t('errors.deleteExpenseFailed'));
+        }
+    };
+ 
+    const handleDeleteTemporaryMember = async (memberId: string, displayName: string): Promise<void> => {
+        // Check if member has any associated expenses
+        const isPayer = expenses.some(e => e.payerUid === memberId);
+        const isInvolved = expenses.some(e => e.involvedUids?.includes(memberId));
+
+        if (isPayer || isInvolved) {
+            alert(t('group.memberHasExpensesWarning'));
+            return;
+        }
+
+        if (!window.confirm(t('group.confirmDeleteTemporaryMember', { name: displayName }))) return;
+
+        try {
+            await removeTemporaryMember(memberId);
+        } catch (error) {
+            console.error("Failed to delete temporary member:", error);
+            alert(t('errors.deleteMemberFailed'));
         }
     };
 
@@ -266,7 +286,7 @@ export default function GroupDetail() {
                     <div>
 
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                            {members.map(m => (
+                             {members.map(m => (
                                 <div key={m.uid} className="flex-center" style={{
                                     background: "rgba(255,255,255,0.05)",
                                     padding: "0.5rem 1rem",
@@ -278,6 +298,33 @@ export default function GroupDetail() {
                                         <img src={m.photoURL} alt="" style={{ width: 20, height: 20, borderRadius: "50%" }} />
                                     ) : <div style={{ width: 20, height: 20, background: "gray", borderRadius: "50%" }} />}
                                     <span style={{ fontSize: "0.9rem" }}>{m.displayName}</span>
+                                    {m.isTemporary && (
+                                        <button
+                                            onClick={() => handleDeleteTemporaryMember(m.uid, m.displayName)}
+                                            style={{
+                                                background: "none",
+                                                border: "none",
+                                                color: "var(--text-muted)",
+                                                cursor: "pointer",
+                                                padding: "0.1rem",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                borderRadius: "50%",
+                                                transition: "all 0.2s ease"
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.color = "hsl(var(--color-danger))";
+                                                e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.color = "var(--text-muted)";
+                                                e.currentTarget.style.background = "none";
+                                            }}
+                                            title={t('common.delete')}
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
                                 </div>
                             ))}
                         </div>
