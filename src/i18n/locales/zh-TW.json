@@ -68,7 +68,9 @@
     "groupNotFound": "找不到帳本",
     "unknown": "未知",
     "uncategorized": "未分類",
-    "expenseCount": "筆消費明細"
+    "expenseCount": "筆消費明細",
+    "memberHasExpensesWarning": "此成員已有費用記錄，無法刪除。請先刪除或修改相關費用。",
+    "confirmDeleteTemporaryMember": "確定要刪除臨時成員 {{name}} 嗎？"
   },
   "expense": {
     "add": "新增費用",
@@ -201,6 +203,7 @@
     "updateExpenseFailed": "更新費用失敗，請再試一次。",
     "loadUsersFailed": "載入使用者列表失敗，請重試。",
     "updateUsersFailed": "更新使用者權限失敗，請重試。",
-    "deleteUserFailed": "刪除使用者失敗，請再試一次。"
+    "deleteUserFailed": "刪除使用者失敗，請再試一次。",
+    "deleteMemberFailed": "刪除成員失敗，請重試。"
   }
 }

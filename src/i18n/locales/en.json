@@ -68,7 +68,9 @@
     "groupNotFound": "Group not found",
     "unknown": "Unknown",
     "uncategorized": "Uncategorized",
-    "expenseCount": "expense records"
+    "expenseCount": "expense records",
+    "memberHasExpensesWarning": "This member has existing expenses and cannot be deleted. Please delete or modify the associated expenses first.",
+    "confirmDeleteTemporaryMember": "Are you sure you want to delete temporary member {{name}}?"
   },
   "expense": {
     "add": "Add New Expense",
@@ -201,6 +203,7 @@
     "updateExpenseFailed": "Failed to update expense. Please try again.",
     "loadUsersFailed": "Failed to load user list. Please try again.",
     "updateUsersFailed": "Failed to update user permissions. Please try again.",
-    "deleteUserFailed": "Failed to delete user. Please try again."
+    "deleteUserFailed": "Failed to delete user. Please try again.",
+    "deleteMemberFailed": "Failed to delete member. Please try again."
   }
 }
