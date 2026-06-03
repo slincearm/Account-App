@@ -70,12 +70,15 @@ service cloud.firestore {
         allow read: if isApprovedUser() && isMemberOfGroup(groupId);
 
         // Only group members can create expenses
-        // Ensure payerUid is the authenticated user, a member, or a temporary member if the group is temporary
+        // Ensure payerUid is a member, or a temporary member (by ID) if the group is temporary
         allow create: if isApprovedUser() &&
                           isMemberOfGroup(groupId) &&
                           (
                             request.resource.data.payerUid in get(/databases/$(database)/documents/groups/$(groupId)).data.members ||
-                            get(/databases/$(database)/documents/groups/$(groupId)).data.get('isTemporary', false) == true
+                            (
+                              get(/databases/$(database)/documents/groups/$(groupId)).data.get('isTemporary', false) == true &&
+                              request.resource.data.payerUid in get(/databases/$(database)/documents/groups/$(groupId)).data.get('temporaryMemberIds', [])
+                            )
                           );
 
         // Only the expense creator or group members can update

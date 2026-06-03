@@ -148,7 +148,9 @@
     "settledPayments": "已結清的付款",
     "noPaymentsNeeded": "不需要任何付款。",
     "spendingBreakdown": "支出明細",
-    "confirmDelete": "確定要刪除已結算帳本「{{name}}」嗎？所有資料將被永久刪除。"
+    "confirmDelete": "確定要刪除已結算帳本「{{name}}」嗎？所有資料將被永久刪除。",
+    "totalSpendingTab": "總支出",
+    "individualSpendingTab": "個人支出"
   },
   "modal": {
     "createGroup": "建立新帳本",
