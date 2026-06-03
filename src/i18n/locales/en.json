@@ -148,7 +148,9 @@
     "settledPayments": "Settled Payments",
     "noPaymentsNeeded": "No payments were needed.",
     "spendingBreakdown": "Spending Breakdown",
-    "confirmDelete": "Are you sure you want to delete settled group '{{name}}'? All data will be permanently deleted."
+    "confirmDelete": "Are you sure you want to delete settled group '{{name}}'? All data will be permanently deleted.",
+    "totalSpendingTab": "Total Spending",
+    "individualSpendingTab": "Individual Spending"
   },
   "modal": {
     "createGroup": "Create New Group",

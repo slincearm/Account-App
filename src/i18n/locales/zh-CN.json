@@ -148,7 +148,9 @@
     "settledPayments": "已结清的付款",
     "noPaymentsNeeded": "不需要任何付款。",
     "spendingBreakdown": "支出明细",
-    "confirmDelete": "确定要删除已结算群组“{{name}}”吗？所有数据将被永久删除。"
+    "confirmDelete": "确定要删除已结算群组\u201c{{name}}\u201d吗？所有数据将被永久删除。",
+    "totalSpendingTab": "总支出",
+    "individualSpendingTab": "个人支出"
   },
   "modal": {
     "createGroup": "创建新群组",
