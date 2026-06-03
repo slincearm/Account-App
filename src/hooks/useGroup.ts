@@ -95,7 +95,8 @@ export function useGroup(groupId: string): UseGroupReturn & {
             };
 
             await updateDoc(doc(db, "groups", groupId), {
-                temporaryMembers: arrayUnion(tempMember)
+                temporaryMembers: arrayUnion(tempMember),
+                temporaryMemberIds: arrayUnion(tempMember.id)
             });
         } catch (err) {
             console.error("Failed to add temporary member:", err);
@@ -113,7 +114,8 @@ export function useGroup(groupId: string): UseGroupReturn & {
             }
 
             await updateDoc(doc(db, "groups", groupId), {
-                temporaryMembers: arrayRemove(tempMemberToRemove)
+                temporaryMembers: arrayRemove(tempMemberToRemove),
+                temporaryMemberIds: arrayRemove(memberId)
             });
         } catch (err) {
             console.error("Failed to remove temporary member:", err);
