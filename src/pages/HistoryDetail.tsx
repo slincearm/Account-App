@@ -34,6 +34,44 @@ export default function HistoryDetail() {
     const { expenses, loading: expensesLoading } = useExpenses(groupId);
     const { totalSpend, plan: settlementPlan } = useSettlement(expenses, members); // Reusing logic
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'total' | 'individual'>('total');
+
+    const memberExpenses = useMemo(() => {
+        const paid: Record<string, number> = {};
+        const share: Record<string, number> = {};
+
+        // Initialize
+        members.forEach(m => {
+            paid[m.uid] = 0;
+            share[m.uid] = 0;
+        });
+
+        // Calculate
+        expenses.forEach(expense => {
+            const amount = Number(expense.amount);
+            if (expense.payerUid) {
+                paid[expense.payerUid] = (paid[expense.payerUid] || 0) + amount;
+            }
+            const splitCount = expense.involvedUids?.length || 1;
+            const perPerson = amount / splitCount;
+            expense.involvedUids?.forEach(uid => {
+                share[uid] = (share[uid] || 0) + perPerson;
+            });
+        });
+
+        return members.map(m => {
+            const mPaid = paid[m.uid] || 0;
+            const mShare = share[m.uid] || 0;
+            return {
+                uid: m.uid,
+                displayName: m.displayName,
+                photoURL: m.photoURL,
+                paid: mPaid,
+                share: mShare,
+                balance: mPaid - mShare
+            };
+        }).sort((a, b) => b.share - a.share);
+    }, [expenses, members]);
 
     // Pie Chart Data Logic (Replicated from GroupDetail, ideally could be a hook but it's small)
     const chartData = useMemo(() => {
@@ -104,95 +142,202 @@ export default function HistoryDetail() {
                     </div>
                 </div>
 
-                {/* Pie Chart (match GroupDetail style) */}
-                <div className="card" style={{ minHeight: "300px", display: "flex", flexDirection: "column" }}>
-                    <h3 style={{ marginBottom: "1rem" }}>{t('history.spendingBreakdown')}</h3>
+                {/* Spending breakdown card with total / individual tabs */}
+                <div className="card" style={{ minHeight: "320px", display: "flex", flexDirection: "column" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                        <h3 style={{ margin: 0 }}>{t('history.spendingBreakdown')}</h3>
+                        
+                        {/* Tab Switcher */}
+                        <div style={{
+                            display: "flex",
+                            background: "rgba(255, 255, 255, 0.05)",
+                            borderRadius: "20px",
+                            padding: "2px",
+                            border: "1px solid var(--glass-border)"
+                        }}>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('total')}
+                                style={{
+                                    border: "none",
+                                    background: activeTab === 'total' ? "hsl(var(--color-primary))" : "transparent",
+                                    color: activeTab === 'total' ? "white" : "var(--text-secondary)",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "600",
+                                    padding: "0.3rem 0.8rem",
+                                    borderRadius: "18px",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease"
+                                }}
+                            >
+                                {t('history.totalSpendingTab', { defaultValue: '總支出' })}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('individual')}
+                                style={{
+                                    border: "none",
+                                    background: activeTab === 'individual' ? "hsl(var(--color-primary))" : "transparent",
+                                    color: activeTab === 'individual' ? "white" : "var(--text-secondary)",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "600",
+                                    padding: "0.3rem 0.8rem",
+                                    borderRadius: "18px",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease"
+                                }}
+                            >
+                                {t('history.individualSpendingTab', { defaultValue: '個人支出' })}
+                            </button>
+                        </div>
+                    </div>
 
-                    {chartData.length > 0 ? (
-                        <>
-                            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                                {/* Category List */}
-                                <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                                    {chartData.map((entry) => (
-                                        <div
-                                            key={entry.categoryKey}
-                                            style={{
+                    {activeTab === 'individual' ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1, justifyContent: "center" }}>
+                            {memberExpenses.map(item => (
+                                <div key={item.uid} style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    padding: "0.75rem 1rem",
+                                    background: "rgba(255, 255, 255, 0.02)",
+                                    border: "1px solid var(--glass-border)",
+                                    borderRadius: "8px"
+                                }}>
+                                    <div className="flex-center" style={{ gap: "0.75rem" }}>
+                                        {item.photoURL ? (
+                                            <img src={item.photoURL} style={{ width: 32, height: 32, borderRadius: "50%" }} alt={item.displayName} />
+                                        ) : (
+                                            <div style={{
+                                                width: 32,
+                                                height: 32,
+                                                background: "rgba(255, 255, 255, 0.05)",
+                                                border: "1px solid var(--glass-border)",
+                                                borderRadius: "50%",
                                                 display: "flex",
                                                 alignItems: "center",
-                                                gap: "0.5rem",
-                                                cursor: "pointer",
-                                                padding: "0.25rem 0.5rem",
-                                                borderRadius: "6px",
-                                                transition: "all 0.2s ease",
-                                                background: selectedCategory === entry.categoryKey ? "rgba(139, 92, 246, 0.08)" : "transparent"
-                                            }}
-                                            onClick={() => setSelectedCategory(entry.categoryKey)}
-                                        >
-                                            <div style={{
-                                                width: 10,
-                                                height: 10,
-                                                borderRadius: 3,
-                                                background: getCategoryColor(entry.categoryKey)
-                                            }} />
-                                            <div style={{ fontSize: "0.8rem" }}>
-                                                <div style={{ color: getCategoryColor(entry.categoryKey), fontWeight: 600 }}>{entry.name}</div>
-                                                <div style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>${(entry.value || 0).toFixed(2)}</div>
+                                                justifyContent: "center",
+                                                fontSize: "0.85rem",
+                                                fontWeight: "600",
+                                                color: "var(--text-secondary)"
+                                            }}>
+                                                {item.displayName.charAt(0)}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <div style={{ fontWeight: "600", fontSize: "0.9rem", color: "var(--text-primary)" }}>{item.displayName}</div>
+                                            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.1rem" }}>
+                                                {t('group.paid')}: ${item.paid.toFixed(0)}
                                             </div>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <div style={{ fontSize: "1rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
+                                            ${item.share.toFixed(0)}
+                                        </div>
+                                        <div style={{
+                                            fontSize: "0.75rem",
+                                            fontWeight: "500",
+                                            marginTop: "0.1rem",
+                                            color: item.balance > 0.01 ? "hsl(var(--color-success))" :
+                                                   item.balance < -0.01 ? "hsl(var(--color-danger))" :
+                                                   "var(--text-muted)"
+                                        }}>
+                                            {item.balance > 0.01 ? `+${item.balance.toFixed(0)}` :
+                                             item.balance < -0.01 ? `${item.balance.toFixed(0)}` :
+                                             t('group.settled')}
+                                        </div>
+                                    </div>
                                 </div>
-
-                                {/* Pie Chart */}
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <PieChart>
-                                            <Pie
-                                                data={chartData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={35}
-                                                outerRadius={50}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                                label={(props) => {
-                                                    const { cx, cy, midAngle, outerRadius, name, percent, payload } = props as any;
-                                                    const RADIAN = Math.PI / 180;
-                                                    const radius = (outerRadius || 50) + 25;
-                                                    const angle = midAngle || 0;
-                                                    const x = (cx || 0) + radius * Math.cos(-angle * RADIAN);
-                                                    const y = (cy || 0) + radius * Math.sin(-angle * RADIAN);
-                                                    const percentage = ((percent || 0) * 100).toFixed(1);
-                                                    const color = getCategoryColor(payload?.categoryKey || '');
-
-                                                    return (
-                                                        <text
-                                                            x={x}
-                                                            y={y}
-                                                            fill={color}
-                                                            textAnchor={x > cx ? 'start' : 'end'}
-                                                            dominantBaseline="central"
-                                                            fontSize="11px"
-                                                        >
-                                                            <tspan x={x} dy="-0.5em">{name}</tspan>
-                                                            <tspan x={x} dy="1.2em">{percentage}%</tspan>
-                                                        </text>
-                                                    );
-                                                }}
-                                                labelLine={{ stroke: 'var(--text-secondary)', strokeWidth: 1 }}
-                                            >
-                                                {chartData.map((entry) => (
-                                                    <Cell key={`cell-${entry.categoryKey}`} fill={getCategoryColor(entry.categoryKey)} />
-                                                ))}
-                                                <Label value={`${expenses.length}`} position="center" style={{ fontSize: '28px', fontWeight: 'bold', fill: 'var(--text-primary)' }} />
-                                                <Label value={t('group.expenseCount')} position="center" dy={22} style={{ fontSize: '10px', fill: 'var(--text-secondary)' }} />
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-                        </>
+                            ))}
+                        </div>
                     ) : (
-                        <div className="flex-center" style={{ flex: 1, color: "var(--text-muted)" }}>{t('common.noData')}</div>
+                        chartData.length > 0 ? (
+                            <>
+                                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                    {/* Category List */}
+                                    <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                        {chartData.map((entry) => (
+                                            <div
+                                                key={entry.categoryKey}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "0.5rem",
+                                                    cursor: "pointer",
+                                                    padding: "0.25rem 0.5rem",
+                                                    borderRadius: "6px",
+                                                    transition: "all 0.2s ease",
+                                                    background: selectedCategory === entry.categoryKey ? "rgba(139, 92, 246, 0.08)" : "transparent"
+                                                }}
+                                                onClick={() => setSelectedCategory(entry.categoryKey)}
+                                            >
+                                                <div style={{
+                                                    width: 10,
+                                                    height: 10,
+                                                    borderRadius: 3,
+                                                    background: getCategoryColor(entry.categoryKey)
+                                                }} />
+                                                <div style={{ fontSize: "0.8rem" }}>
+                                                    <div style={{ color: getCategoryColor(entry.categoryKey), fontWeight: 600 }}>{entry.name}</div>
+                                                    <div style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>${(entry.value || 0).toFixed(2)}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Pie Chart */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <ResponsiveContainer width="100%" height={200}>
+                                            <PieChart>
+                                                <Pie
+                                                    data={chartData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={35}
+                                                    outerRadius={50}
+                                                    paddingAngle={5}
+                                                    dataKey="value"
+                                                    label={(props) => {
+                                                        const { cx, cy, midAngle, outerRadius, name, percent, payload } = props as any;
+                                                        const RADIAN = Math.PI / 180;
+                                                        const radius = (outerRadius || 50) + 25;
+                                                        const angle = midAngle || 0;
+                                                        const x = (cx || 0) + radius * Math.cos(-angle * RADIAN);
+                                                        const y = (cy || 0) + radius * Math.sin(-angle * RADIAN);
+                                                        const percentage = ((percent || 0) * 100).toFixed(1);
+                                                        const color = getCategoryColor(payload?.categoryKey || '');
+
+                                                        return (
+                                                            <text
+                                                                x={x}
+                                                                y={y}
+                                                                fill={color}
+                                                                textAnchor={x > cx ? 'start' : 'end'}
+                                                                dominantBaseline="central"
+                                                                fontSize="11px"
+                                                            >
+                                                                <tspan x={x} dy="-0.5em">{name}</tspan>
+                                                                <tspan x={x} dy="1.2em">{percentage}%</tspan>
+                                                            </text>
+                                                        );
+                                                    }}
+                                                    labelLine={{ stroke: 'var(--text-secondary)', strokeWidth: 1 }}
+                                                >
+                                                    {chartData.map((entry) => (
+                                                        <Cell key={`cell-${entry.categoryKey}`} fill={getCategoryColor(entry.categoryKey)} />
+                                                    ))}
+                                                    <Label value={`${expenses.length}`} position="center" style={{ fontSize: '28px', fontWeight: 'bold', fill: 'var(--text-primary)' }} />
+                                                    <Label value={t('group.expenseCount')} position="center" dy={22} style={{ fontSize: '10px', fill: 'var(--text-secondary)' }} />
+                                                </Pie>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex-center" style={{ flex: 1, color: "var(--text-muted)" }}>{t('common.noData')}</div>
+                        )
                     )}
                 </div>
             </div>
