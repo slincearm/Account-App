@@ -47,17 +47,14 @@ export default function HistoryDetail() {
         });
 
         // Calculate
-        expenses.forEach((expense) => {
+        expenses.forEach(expense => {
             const amount = Number(expense.amount);
-            const involved = expense.involvedUids ?? [];
-            if (involved.length === 0) return; // keep consistent with useSettlement
-
             if (expense.payerUid) {
                 paid[expense.payerUid] = (paid[expense.payerUid] || 0) + amount;
             }
-
-            const perPerson = amount / involved.length;
-            involved.forEach((uid) => {
+            const splitCount = expense.involvedUids?.length || 1;
+            const perPerson = amount / splitCount;
+            expense.involvedUids?.forEach(uid => {
                 share[uid] = (share[uid] || 0) + perPerson;
             });
         });
