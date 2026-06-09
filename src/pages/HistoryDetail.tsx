@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Label } from "recharts";
 import { useGroup } from "../hooks/useGroup";
 import { useExpenses } from "../hooks/useExpenses";
@@ -23,6 +23,31 @@ const getCategoryColor = (category: string): string => {
     return (CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] ?? CATEGORY_COLORS.uncategorized) as string;
 };
 
+// Category icons
+const CATEGORY_ICONS: Record<string, string> = {
+    food: '🍔',
+    clothing: '👕',
+    housing: '🏠',
+    transportation: '🚗',
+    education: '📚',
+    entertainment: '🎮',
+    miscellaneous: '📦'
+};
+
+const getCategoryIcon = (category: string): string => {
+    return CATEGORY_ICONS[category] || '⚙️';
+};
+
+const formatExpenseDate = (timestamp: any): string => {
+    if (!timestamp) return "";
+    const date = typeof timestamp.toDate === "function" ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
+
 const CATEGORY_ORDER = ['food', 'clothing', 'housing', 'transportation', 'education', 'entertainment', 'miscellaneous'];
 
 export default function HistoryDetail() {
@@ -35,6 +60,17 @@ export default function HistoryDetail() {
     const { totalSpend, plan: settlementPlan } = useSettlement(expenses, members); // Reusing logic
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'total' | 'individual'>('total');
+    const [expandedMember, setExpandedMember] = useState<string | null>(null);
+
+    const memberDetails = useMemo(() => {
+        if (!expandedMember) return [];
+        return expenses.filter(e => e.payerUid === expandedMember || e.involvedUids?.includes(expandedMember))
+            .sort((a, b) => {
+                const timeA = a.timestamp?.toDate?.()?.getTime() || 0;
+                const timeB = b.timestamp?.toDate?.()?.getTime() || 0;
+                return timeB - timeA;
+            });
+    }, [expenses, expandedMember]);
 
     const memberExpenses = useMemo(() => {
         const paid: Record<string, number> = {};
@@ -47,17 +83,14 @@ export default function HistoryDetail() {
         });
 
         // Calculate
-        expenses.forEach((expense) => {
+        expenses.forEach(expense => {
             const amount = Number(expense.amount);
-            const involved = expense.involvedUids ?? [];
-            if (involved.length === 0) return; // keep consistent with useSettlement
-
             if (expense.payerUid) {
                 paid[expense.payerUid] = (paid[expense.payerUid] || 0) + amount;
             }
-
-            const perPerson = amount / involved.length;
-            involved.forEach((uid) => {
+            const splitCount = expense.involvedUids?.length || 1;
+            const perPerson = amount / splitCount;
+            expense.involvedUids?.forEach(uid => {
                 share[uid] = (share[uid] || 0) + perPerson;
             });
         });
@@ -197,62 +230,170 @@ export default function HistoryDetail() {
 
                     {activeTab === 'individual' ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1, justifyContent: "center" }}>
-                            {memberExpenses.map(item => (
-                                <div key={item.uid} style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    padding: "0.75rem 1rem",
-                                    background: "rgba(255, 255, 255, 0.02)",
-                                    border: "1px solid var(--glass-border)",
-                                    borderRadius: "8px"
-                                }}>
-                                    <div className="flex-center" style={{ gap: "0.75rem" }}>
-                                        {item.photoURL ? (
-                                            <img src={item.photoURL} style={{ width: 32, height: 32, borderRadius: "50%" }} alt={item.displayName} />
-                                        ) : (
-                                            <div style={{
-                                                width: 32,
-                                                height: 32,
-                                                background: "rgba(255, 255, 255, 0.05)",
-                                                border: "1px solid var(--glass-border)",
-                                                borderRadius: "50%",
+                            {memberExpenses.map(item => {
+                                const isExpanded = expandedMember === item.uid;
+                                return (
+                                    <div key={item.uid} style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        background: "rgba(255, 255, 255, 0.02)",
+                                        border: "1px solid var(--glass-border)",
+                                        borderRadius: "8px",
+                                        overflow: "hidden",
+                                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                                    }}>
+                                        {/* Clickable Header */}
+                                        <div
+                                            onClick={() => setExpandedMember(isExpanded ? null : item.uid)}
+                                            style={{
                                                 display: "flex",
+                                                justifyContent: "space-between",
                                                 alignItems: "center",
-                                                justifyContent: "center",
-                                                fontSize: "0.85rem",
-                                                fontWeight: "600",
-                                                color: "var(--text-secondary)"
+                                                padding: "0.75rem 1rem",
+                                                cursor: "pointer",
+                                                userSelect: "none",
+                                                transition: "background-color 0.2s ease"
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.04)";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = "transparent";
+                                            }}
+                                        >
+                                            <div className="flex-center" style={{ gap: "0.75rem" }}>
+                                                {item.photoURL ? (
+                                                    <img src={item.photoURL} style={{ width: 32, height: 32, borderRadius: "50%" }} alt={item.displayName} />
+                                                ) : (
+                                                    <div style={{
+                                                        width: 32,
+                                                        height: 32,
+                                                        background: "rgba(255, 255, 255, 0.05)",
+                                                        border: "1px solid var(--glass-border)",
+                                                        borderRadius: "50%",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontSize: "0.85rem",
+                                                        fontWeight: "600",
+                                                        color: "var(--text-secondary)"
+                                                    }}>
+                                                        {item.displayName.charAt(0)}
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <div style={{ fontWeight: "600", fontSize: "0.9rem", color: "var(--text-primary)" }}>{item.displayName}</div>
+                                                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.1rem" }}>
+                                                        {t('group.paid')}: ${item.paid.toFixed(0)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex-center" style={{ gap: "1rem" }}>
+                                                <div style={{ textAlign: "right" }}>
+                                                    <div style={{ fontSize: "1rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
+                                                        ${item.share.toFixed(0)}
+                                                    </div>
+                                                    <div style={{
+                                                        fontSize: "0.75rem",
+                                                        fontWeight: "500",
+                                                        marginTop: "0.1rem",
+                                                        color: item.balance > 0.01 ? "hsl(var(--color-success))" :
+                                                               item.balance < -0.01 ? "hsl(var(--color-danger))" :
+                                                               "var(--text-muted)"
+                                                    }}>
+                                                        {item.balance > 0.01 ? `+${item.balance.toFixed(0)}` :
+                                                         item.balance < -0.01 ? `${item.balance.toFixed(0)}` :
+                                                         t('group.settled')}
+                                                    </div>
+                                                </div>
+                                                {isExpanded ? (
+                                                    <ChevronUp size={16} style={{ color: "var(--text-secondary)" }} />
+                                                ) : (
+                                                    <ChevronDown size={16} style={{ color: "var(--text-secondary)" }} />
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Expanded Details */}
+                                        {isExpanded && (
+                                            <div style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                background: "rgba(0, 0, 0, 0.15)",
+                                                borderTop: "1px solid var(--glass-border)",
+                                                padding: "0.5rem 1rem",
+                                                maxHeight: "300px",
+                                                overflowY: "auto"
                                             }}>
-                                                {item.displayName.charAt(0)}
+                                                {memberDetails.length === 0 ? (
+                                                    <div style={{ padding: "0.75rem 0", color: "var(--text-muted)", fontSize: "0.85rem", textAlign: "center" }}>
+                                                        {t('group.noExpenses')}
+                                                    </div>
+                                                ) : (
+                                                    memberDetails.map(expense => {
+                                                        const isPayer = expense.payerUid === item.uid;
+                                                        const isInvolved = expense.involvedUids?.includes(item.uid);
+                                                        const splitCount = expense.involvedUids?.length || 1;
+                                                        const shareAmount = expense.amount / splitCount;
+
+                                                        return (
+                                                            <div key={expense.id} style={{
+                                                                display: "flex",
+                                                                justifyContent: "space-between",
+                                                                alignItems: "center",
+                                                                padding: "0.6rem 0",
+                                                                borderBottom: "1px solid rgba(255, 255, 255, 0.04)"
+                                                            }}>
+                                                                <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flex: 1, minWidth: 0 }}>
+                                                                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "monospace", minWidth: "75px" }}>
+                                                                        {formatExpenseDate(expense.timestamp)}
+                                                                    </span>
+                                                                    <span style={{ fontSize: "1.1rem" }} title={t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}>
+                                                                        {getCategoryIcon(expense.category)}
+                                                                    </span>
+                                                                    <span style={{
+                                                                        fontWeight: "500",
+                                                                        fontSize: "0.85rem",
+                                                                        color: "var(--text-primary)",
+                                                                        overflow: "hidden",
+                                                                        textOverflow: "ellipsis",
+                                                                        whiteSpace: "nowrap"
+                                                                    }}>
+                                                                        {expense.description}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
+                                                                    {isPayer && (
+                                                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                                                                            <span style={{ fontSize: "0.65rem", color: "hsl(var(--color-success))", fontWeight: "600" }}>
+                                                                                {t('group.paid_badge', { defaultValue: '已付' })}
+                                                                            </span>
+                                                                            <span style={{ fontSize: "0.85rem", color: "hsl(var(--color-success))", fontWeight: "600" }}>
+                                                                                ${expense.amount.toFixed(0)}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    {isInvolved && (
+                                                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                                                                            <span style={{ fontSize: "0.65rem", color: "hsl(var(--color-primary))", fontWeight: "600" }}>
+                                                                                {t('group.split_badge', { defaultValue: '分攤' })}
+                                                                            </span>
+                                                                            <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600" }}>
+                                                                                ${shareAmount.toFixed(0)}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                )}
                                             </div>
                                         )}
-                                        <div>
-                                            <div style={{ fontWeight: "600", fontSize: "0.9rem", color: "var(--text-primary)" }}>{item.displayName}</div>
-                                            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.1rem" }}>
-                                                {t('group.paid')}: ${item.paid.toFixed(0)}
-                                            </div>
-                                        </div>
                                     </div>
-                                    <div style={{ textAlign: "right" }}>
-                                        <div style={{ fontSize: "1rem", fontWeight: "bold", color: "hsl(var(--color-primary))" }}>
-                                            ${item.share.toFixed(0)}
-                                        </div>
-                                        <div style={{
-                                            fontSize: "0.75rem",
-                                            fontWeight: "500",
-                                            marginTop: "0.1rem",
-                                            color: item.balance > 0.01 ? "hsl(var(--color-success))" :
-                                                   item.balance < -0.01 ? "hsl(var(--color-danger))" :
-                                                   "var(--text-muted)"
-                                        }}>
-                                            {item.balance > 0.01 ? `+${item.balance.toFixed(0)}` :
-                                             item.balance < -0.01 ? `${item.balance.toFixed(0)}` :
-                                             t('group.settled')}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         chartData.length > 0 ? (
