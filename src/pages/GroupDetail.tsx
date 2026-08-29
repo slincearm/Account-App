@@ -249,17 +249,17 @@ export default function GroupDetail() {
 
     return (
         <>
-            <div className="flex-between" style={{ marginBottom: "1.5rem" }}>
-                <div className="flex-center" style={{ gap: "1rem" }}>
-                    <Link to="/" style={{ color: "var(--text-secondary)" }}><ArrowLeft /></Link>
+            <div className="flex-between" style={{ marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                <div className="flex-center" style={{ gap: "0.75rem" }}>
+                    <Link to="/" style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center" }}><ArrowLeft size={22} /></Link>
                     <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                            <h1 className="text-gradient" style={{ fontSize: "1.75rem", margin: 0 }}>{group.name}</h1>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                            <h1 className="text-gradient" style={{ fontSize: "1.5rem", margin: 0, wordBreak: "break-word" }}>{group.name}</h1>
                             {group.isTemporary && (
                                 <span style={{
                                     fontSize: "0.75rem",
                                     color: "hsl(var(--color-primary))",
-                                    padding: "0.3rem 0.6rem",
+                                    padding: "0.2rem 0.5rem",
                                     background: "rgba(139, 92, 246, 0.15)",
                                     borderRadius: "6px",
                                     fontWeight: 600
@@ -268,36 +268,36 @@ export default function GroupDetail() {
                                 </span>
                             )}
                         </div>
-                        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", margin: "0.25rem 0 0 0" }}>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: "0.2rem 0 0 0" }}>
                             {members.length} {t('group.members')}
                         </p>
                     </div>
                 </div>
                 <div className="flex-center" style={{ gap: "0.5rem" }}>
-                    <button className="btn btn-secondary" onClick={() => setShowAddMember(true)} title={t('group.addMember')}>
+                    <button className="btn btn-secondary" onClick={() => setShowAddMember(true)} title={t('group.addMember')} style={{ padding: "0.5rem 0.75rem" }}>
                         <UserPlus size={18} />
                     </button>
                 </div>
             </div>
 
-            <div style={{ marginBottom: "2rem" }}>
-                <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ marginBottom: "1.5rem", width: "100%" }}>
+                <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1.25rem", width: "100%" }}>
                     {/* Members Section */}
                     <div>
-
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                              {members.map(m => (
                                 <div key={m.uid} className="flex-center" style={{
                                     background: "rgba(255,255,255,0.05)",
-                                    padding: "0.5rem 1rem",
+                                    padding: "0.4rem 0.8rem",
                                     borderRadius: "2rem",
                                     border: "1px solid var(--glass-border)",
-                                    gap: "0.5rem"
+                                    gap: "0.4rem",
+                                    fontSize: "0.85rem"
                                 }}>
                                     {m.photoURL ? (
                                         <img src={m.photoURL} alt="" style={{ width: 20, height: 20, borderRadius: "50%" }} />
                                     ) : <div style={{ width: 20, height: 20, background: "gray", borderRadius: "50%" }} />}
-                                    <span style={{ fontSize: "0.9rem" }}>{m.displayName}</span>
+                                    <span>{m.displayName}</span>
                                     {m.isTemporary && (
                                         <button
                                             onClick={() => handleDeleteTemporaryMember(m.uid, m.displayName)}
@@ -333,18 +333,21 @@ export default function GroupDetail() {
                     <div style={{ height: "1px", background: "var(--glass-border)" }} />
 
                     {/* Chart Section */}
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-
+                    <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
                         {chartData.length > 0 ? (
                             <>
                                 {/* Total Spending */}
                                 <div style={{
                                     textAlign: "center",
-                                    marginBottom: "1rem",
-                                    padding: "0.75rem",
+                                    marginBottom: isCategoryExpanded ? "1rem" : "0",
+                                    padding: "0.75rem 1rem",
                                     background: "rgba(139, 92, 246, 0.1)",
                                     borderRadius: "8px",
-                                    border: "1px solid rgba(139, 92, 246, 0.2)"
+                                    border: "1px solid rgba(139, 92, 246, 0.2)",
+                                    cursor: "pointer",
+                                    width: "100%",
+                                    maxWidth: "100%",
+                                    boxSizing: "border-box"
                                 }} onClick={() => setIsCategoryExpanded(!isCategoryExpanded)}>
                                     <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
                                         {dateRange}
@@ -355,9 +358,9 @@ export default function GroupDetail() {
                                 </div>
                                 {isCategoryExpanded && (
                                     <>
-                                        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
                                             {/* Category List */}
-                                            <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                            <div style={{ flex: "1 1 140px", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                                                 {chartData.map((entry) => (
                                                     <div
                                                         key={entry.categoryKey}
@@ -405,7 +408,7 @@ export default function GroupDetail() {
                                             </div>
 
                                             {/* Pie Chart */}
-                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ flex: "1 1 200px", minWidth: "180px" }}>
                                                 <ResponsiveContainer width="100%" height={200}>
                                                     <PieChart>
                                                         <Pie
@@ -532,9 +535,9 @@ export default function GroupDetail() {
             </div>
 
             <div className="flex-between" style={{ marginBottom: "1rem" }}>
-                <h2 style={{ fontSize: "1.5rem" }}>{t('group.expenses')}</h2>
-                <button className="btn btn-primary" onClick={() => setShowAddExpense(true)}>
-                    <Plus size={18} /> {t('group.addItem')}
+                <h2 style={{ fontSize: "1.35rem" }}>{t('group.expenses')}</h2>
+                <button className="btn btn-primary" onClick={() => setShowAddExpense(true)} style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}>
+                    <Plus size={16} /> {t('group.addItem')}
                 </button>
             </div>
 
@@ -582,21 +585,21 @@ export default function GroupDetail() {
                 </div>
             )}
 
-            <div style={{ display: "grid", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
                 {expensesByDate.map(({ date, expenses: dailyExpenses, totalAmount }) => (
-                    <div key={date} className="card" style={{ padding: "1.25rem" }}>
+                    <div key={date} className="card" style={{ width: "100%", overflow: "hidden" }}>
                         {/* Date Header */}
                         <div style={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            marginBottom: "1rem",
-                            paddingBottom: "0.75rem",
+                            marginBottom: "0.75rem",
+                            paddingBottom: "0.5rem",
                             borderBottom: "1px solid var(--glass-border)"
                         }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <Calendar size={18} style={{ color: "hsl(var(--color-primary))" }} />
-                                <h3 style={{ fontSize: "1rem", fontWeight: "600", margin: 0 }}>{date}</h3>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                                <Calendar size={16} style={{ color: "hsl(var(--color-primary))" }} />
+                                <h3 style={{ fontSize: "0.95rem", fontWeight: "600", margin: 0 }}>{date}</h3>
                             </div>
                             <div style={{
                                 fontSize: "0.95rem",
@@ -608,7 +611,7 @@ export default function GroupDetail() {
                         </div>
 
                         {/* Expenses List */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%" }}>
                             {dailyExpenses.map(expense => {
                                 const payerName = getMemberName(expense.payerUid);
                                 const splitCount = expense.involvedUids?.length || 1;
@@ -621,12 +624,15 @@ export default function GroupDetail() {
                                             display: "flex",
                                             justifyContent: "space-between",
                                             alignItems: "center",
-                                            padding: "0.75rem",
+                                            padding: "0.6rem 0.75rem",
                                             background: "rgba(255, 255, 255, 0.03)",
                                             borderRadius: "8px",
                                             border: "1px solid var(--glass-border)",
                                             cursor: "pointer",
-                                            transition: "all 0.2s ease"
+                                            transition: "all 0.2s ease",
+                                            gap: "0.5rem",
+                                            width: "100%",
+                                            boxSizing: "border-box"
                                         }}
                                         onClick={() => setEditingExpense(expense)}
                                         onMouseEnter={(e) => {
@@ -638,51 +644,66 @@ export default function GroupDetail() {
                                             e.currentTarget.style.borderColor = "var(--glass-border)";
                                         }}
                                     >
-                                        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1 }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, minWidth: 0 }}>
                                             <div style={{
                                                 display: "flex",
                                                 alignItems: "center",
                                                 justifyContent: "center",
-                                                minWidth: "50px",
-                                                padding: "0.25rem 0.5rem",
+                                                padding: "0.2rem 0.35rem",
                                                 background: "rgba(139, 92, 246, 0.1)",
-                                                borderRadius: "6px",
+                                                borderRadius: "4px",
                                                 border: "1px solid rgba(139, 92, 246, 0.2)",
-                                                fontSize: "0.8rem",
-                                                color: "var(--text-secondary)"
+                                                fontSize: "0.75rem",
+                                                color: "var(--text-secondary)",
+                                                flexShrink: 0
                                             }}>
                                                 {expense.timestamp?.toDate ?
                                                     expense.timestamp.toDate().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
                                                     : '--:--'}
                                             </div>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
-
+                                            <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.15rem" }}>
                                                     <div style={{
-                                                        fontSize: "0.9rem",
+                                                        fontSize: "0.8rem",
                                                         fontWeight: "600",
+                                                        flexShrink: 0,
                                                         color: PREDEFINED_CATEGORIES.includes(expense.category)
                                                             ? `var(--category-${expense.category})`
                                                             : 'var(--category-custom)',
                                                     }}>
                                                         {t(`expense.categories.${expense.category}`, { defaultValue: expense.category })}
                                                     </div>
-                                                    <h4 style={{ fontSize: "1rem", margin: "0", fontWeight: "bold" }}>{expense.description}</h4>
+                                                    <h4 style={{
+                                                        fontSize: "0.9rem",
+                                                        margin: 0,
+                                                        fontWeight: "bold",
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        textOverflow: "ellipsis"
+                                                    }}>
+                                                        {expense.description}
+                                                    </h4>
                                                 </div>
 
                                                 {/* Payer */}
-                                                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "0.1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                <div style={{
+                                                    fontSize: "0.75rem",
+                                                    color: "var(--text-secondary)",
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis"
+                                                }}>
                                                     {t('group.paidBy')} {payerName} {'•'} ${perPerson.toFixed(0)} / {splitCount}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
                                             <div style={{
-                                                fontSize: "1.05rem",
+                                                fontSize: "0.95rem",
                                                 fontWeight: "bold",
                                                 color: "hsl(var(--color-success))",
-                                                minWidth: "80px",
-                                                textAlign: "right"
+                                                textAlign: "right",
+                                                whiteSpace: "nowrap"
                                             }}>
                                                 ${expense.amount.toFixed(0)}
                                             </div>
@@ -694,12 +715,13 @@ export default function GroupDetail() {
                                                 }}
                                                 title={t('common.delete')}
                                                 style={{
-                                                    padding: "0.5rem",
+                                                    padding: "0.35rem",
                                                     color: "hsl(var(--color-danger))",
-                                                    minWidth: "auto"
+                                                    minWidth: "auto",
+                                                    borderRadius: "6px"
                                                 }}
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={15} />
                                             </button>
                                         </div>
                                     </div>

@@ -17,12 +17,13 @@ export default function Layout() {
                 backdropFilter: "blur(12px)",
                 position: "sticky",
                 top: 0,
-                zIndex: 50
+                zIndex: 50,
+                width: "100%"
             }}>
-                <div className="container flex-between" style={{ padding: "1rem" }}>
-                    <h2 className="text-gradient" style={{ fontSize: "1.25rem" }}>{t('auth.loginTitle')}</h2>
+                <div className="container flex-between" style={{ padding: "0.75rem 1rem", gap: "0.5rem" }}>
+                    <h2 className="text-gradient" style={{ fontSize: "1.15rem", whiteSpace: "nowrap" }}>{t('auth.loginTitle')}</h2>
 
-                    <div className="flex-center" style={{ gap: "1rem" }}>
+                    <div className="flex-center" style={{ gap: "0.4rem", flexShrink: 0 }}>
                         <ThemeSwitcher />
                         <LanguageSwitcher />
 
@@ -30,27 +31,27 @@ export default function Layout() {
                             <Link
                                 to="/admin"
                                 className="btn btn-secondary"
-                                style={{ padding: "0.5rem 1rem" }}
+                                style={{ padding: "0.4rem 0.6rem" }}
                                 title={t('admin.panel')}
                             >
-                                <Shield size={18} />
+                                <Shield size={16} />
                                 <span className="hide-mobile">{t('admin.panel')}</span>
                             </Link>
                         )}
 
-                        <div className="flex-center" style={{ gap: "0.5rem" }}>
+                        <div className="flex-center" style={{ gap: "0.35rem" }}>
                             {currentUser?.photoURL ? (
                                 <img
                                     src={currentUser.photoURL}
                                     alt="Avatar"
-                                    style={{ width: 32, height: 32, borderRadius: "50%" }}
+                                    style={{ width: 28, height: 28, borderRadius: "50%" }}
                                 />
                             ) : (
-                                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--surface-dark)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <User size={18} />
+                                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--surface-dark)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <User size={16} />
                                 </div>
                             )}
-                            <span className="hide-mobile-block" style={{ fontSize: "0.9rem" }}>
+                            <span className="hide-mobile-block" style={{ fontSize: "0.85rem" }}>
                                 {currentUser?.displayName}
                             </span>
                         </div>
@@ -61,17 +62,19 @@ export default function Layout() {
                                 background: "transparent",
                                 border: "none",
                                 color: "var(--text-muted)",
-                                padding: "0.5rem"
+                                padding: "0.35rem",
+                                display: "flex",
+                                alignItems: "center"
                             }}
                             title={t('common.signOut')}
                         >
-                            <LogOut size={20} />
+                            <LogOut size={18} />
                         </button>
                     </div>
                 </div>
             </header>
 
-            <main className="container" style={{ padding: "2rem 1rem" }}>
+            <main className="container app-main">
                 <Outlet />
             </main>
         </>

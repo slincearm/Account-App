@@ -138,7 +138,7 @@ export default function HistoryDetail() {
     if (groupLoading || expensesLoading) return <div className="container text-center mt-10">{t('group.loadingDetails')}</div>;
 
     return (
-        <div className="container" style={{ maxWidth: "800px" }}>
+        <div style={{ width: "100%", maxWidth: "800px", margin: "0 auto" }}>
             <div className="flex-center" style={{ justifyContent: "flex-start", gap: "1rem", marginBottom: "2rem" }}>
                 <Link to="/history" style={{ color: "var(--text-secondary)" }}><ArrowLeft /></Link>
                 <div>

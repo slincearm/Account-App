@@ -130,7 +130,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {loading ? (
+                <div className="flex-center" style={{ minHeight: "100vh" }}>
+                    <div className="text-gradient" style={{ fontSize: "1.25rem", fontWeight: 600 }}>載入中...</div>
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     );
 }

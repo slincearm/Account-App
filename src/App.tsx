@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import NetworkStatus from "./components/NetworkStatus";
 import FcmInitializer from "./components/FcmInitializer";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // 使用 lazy loading 進行代碼分割
 const Login = lazy(() => import("./pages/Login"));
@@ -31,34 +32,36 @@ function LoadingFallback() {
 
 export default function App() {
   return (
-    <NetworkProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <FcmInitializer />
-          <BrowserRouter>
-            <NetworkStatus />
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/pending" element={<Pending />} />
+    <ErrorBoundary>
+      <NetworkProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <FcmInitializer />
+            <BrowserRouter>
+              <NetworkStatus />
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/pending" element={<Pending />} />
 
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<Layout />}>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/group/:groupId" element={<GroupDetail />} />
-                    <Route path="/settle/:groupId" element={<Settlement />} />
-                    <Route path="/history" element={<History />} />
-                    <Route path="/history/:groupId" element={<HistoryDetail />} />
-                    <Route path="/admin" element={<AdminPanel />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<Layout />}>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/group/:groupId" element={<GroupDetail />} />
+                      <Route path="/settle/:groupId" element={<Settlement />} />
+                      <Route path="/history" element={<History />} />
+                      <Route path="/history/:groupId" element={<HistoryDetail />} />
+                      <Route path="/admin" element={<AdminPanel />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </AuthProvider>
-      </LanguageProvider>
-    </NetworkProvider>
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </AuthProvider>
+        </LanguageProvider>
+      </NetworkProvider>
+    </ErrorBoundary>
   );
 }

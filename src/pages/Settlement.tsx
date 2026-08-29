@@ -38,7 +38,7 @@ export default function Settlement() {
     };
 
     return (
-        <div className="container" style={{ maxWidth: "800px" }}>
+        <div style={{ width: "100%", maxWidth: "800px", margin: "0 auto" }}>
             <div className="flex-center" style={{ justifyContent: "flex-start", gap: "1rem", marginBottom: "2rem" }}>
                 <Link to="/" style={{ color: "var(--text-secondary)" }}><ArrowLeft /></Link>
                 <h1 className="text-gradient" style={{ fontSize: "2rem" }}>{t('settlement.title')}</h1>
